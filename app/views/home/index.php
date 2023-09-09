@@ -9,11 +9,6 @@
 
 <body>
     <h1>Trang chủ</h1>
-    <?php
-    echo '<pre>';
-    print_r($data);
-    echo '</pre>';
-    ?>
 </body>
 
 </html>

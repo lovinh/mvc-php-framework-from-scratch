@@ -4,10 +4,13 @@ class App
     private $__controller;
     private $__action;
     private $__parameters;
+    private $__route;
 
     function __construct()
     {
         global $router;
+
+        $this->__route = new Route();
         if (!empty($router["default_controller"])) {
             $this->__controller = $router["default_controller"];
         }
@@ -64,7 +67,7 @@ class App
             // Placeholder for error handle
             $this->load_error();
             if ($app_config["debug_mode"])
-                throw new Exception("Controller file not exist. Make sure you have created your controller file", 1);
+                throw new Exception("Controller file '" . $this->__controller . "' not exist. Make sure you have created your controller file", 1);
         }
 
         require_once "app/controllers/" . $this->__controller . ".php";

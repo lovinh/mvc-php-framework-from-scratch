@@ -1,9 +1,9 @@
 <?php
-class Home
+class Home extends BaseController
 {
     function index()
     {
-        echo "Trang chủ";
+        $this->render_view("home/index");
     }
     function search($id = "", $name = "")
     {
