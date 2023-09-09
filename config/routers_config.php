@@ -6,3 +6,5 @@ $router["default_controller"] = "home";
  * [Actual URL] => [Virtual URL]
  */
 $router["san-pham"] = "product/index";
+$router["trang-chu"] = "home/index";
+$router["san-pham/chi-tiet-san-pham"] = "product/detail";
