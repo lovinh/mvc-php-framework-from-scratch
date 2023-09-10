@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Error</title>
 </head>
 
 <body>
-    <h1>404 bạn êy</h1>
+    <h1>404 File Not Found</h1>
 </body>
 
 </html>

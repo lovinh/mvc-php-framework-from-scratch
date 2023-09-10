@@ -6,9 +6,14 @@ class App
     private $__parameters;
     private $__route;
 
+    public static $app;
+
     function __construct()
     {
         global $router;
+        global $app_config;
+
+        self::$app = $this;
 
         // Init route object
         $this->__route = new Route();
@@ -19,7 +24,28 @@ class App
         $this->__action = "index";
         $this->__parameters = [];
 
-        $this->init($this->parse_url());
+        // Init handler and catch exception
+        try {
+            $this->init($this->parse_url());
+        } catch (Exception $ex) {
+            // Handle app error
+            $err_code = $ex->getCode();
+            if (!$err_code) {
+                $err_code = 500;
+            }
+            $err_data = [];
+            if ($app_config["debug_mode"]) {
+                $err_data = [
+                    "message" => $ex->getMessage(),
+                    "trace" => $ex->getTrace()
+                ];
+                $this->load_error("debug", $err_data);
+            } else {
+                $this->load_error($err_code, $err_data);
+            }
+
+            die();
+        }
     }
 
     /**
@@ -90,9 +116,7 @@ class App
         // Check for exist controller file. If not, raise error
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
             // Placeholder for error handle
-            $this->load_error();
-            if ($app_config["debug_mode"])
-                throw new Exception("Controller file '" . $this->__controller . "' not exist. Make sure you have created your controller file", 1);
+            throw new RuntimeException("FILE NOT FOUND: Controller file '" . $this->__controller . "' not exist. Make sure you have created your controller file.", 404);
         }
 
         require_once "app/controllers/" . $url_check . ".php";
@@ -100,34 +124,26 @@ class App
         if (!class_exists($this->__controller)) {
             // Check for class $this->__controller exist
             // placeholder for error handle
-            if (!$app_config["debug_mode"])
-                $this->load_error("500");
-            else
-                throw new Exception("Controller class '" . $this->__controller . "' not exist. Make sure you name your controller class match with controller file name", 1);
+            throw new RuntimeException("CLASS NOT FOUND: Controller class '" . $this->__controller . "' not exist. Make sure you name your controller class match with controller file name!", 404);
         } else if (!method_exists($this->__controller, $this->__action)) {
             // Check for exist action
             // Placeholder for error handle
-            $this->load_error();
-            if ($app_config["debug_mode"])
-                throw new Exception("Action method not exist. Maybe you missing your action method in your controller class", 1);
+            throw new RuntimeException("METHOD NOT FOUND: Method '" . $this->__controller . "->" . $this->__action . "()' not exist. Maybe you missing your action method in your controller class", 404);
         } else {
             $this->__controller = new $this->__controller();
 
-
             // This function use to execute a custom function 
-            try {
-                call_user_func_array([$this->__controller, $this->__action], $this->__parameters);
-            } catch (Exception $e) {
-                $this->load_error("500");
-            }
+            call_user_func_array([$this->__controller, $this->__action], $this->__parameters);
         }
     }
 
     /**
      * This function use to load a error page with error name
      */
-    public function load_error($name = "404")
+    public function load_error($name = "500", $data = [])
     {
         require_once "app/errors/" . $name . ".php";
     }
+
+    
 }

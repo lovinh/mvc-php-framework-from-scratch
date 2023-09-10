@@ -16,7 +16,6 @@
     <main>
         <div>
             <?php
-            echo $this->data['page_title'];
             $this->render_view($this->data['content'], $this->data['sub_content']);
             ?>
         </div>
