@@ -10,9 +10,7 @@ if (!empty($_SERVER["HTTPS"]) &&  $_SERVER["HTTPS"] = "on") {
 
 // Get web root folder
 $document_root = implode('\\', explode('/', $_SERVER["DOCUMENT_ROOT"]));
-
 $folder = ltrim(str_replace(strtolower($document_root), '', strtolower(_DIR_ROOT)), '\\');
-
 $web_root = $web_root . '/' . $folder;
 
 // define constant variable for web root
@@ -35,22 +33,6 @@ if (!$app_config["debug_mode"]) {
     error_reporting(E_ALL);
 }
 
-function error_handler(
-    int $type,
-    string $msg,
-    ?string $file,
-    ?int $line
-) {
-    echo "MY CUSTOM ERROR HANDLER</br>";
-    exit;
-}
-function shutdown_handler() {
-    echo "MY CUSTOM SHUTDOWN HANDLER</br>";
-    exit;
-}
-set_error_handler('error_handler', E_ALL);
-register_shutdown_function("shutdown_handler");
-
 // Load routing
 require_once "core/Route.php";
 
@@ -61,6 +43,7 @@ require_once "app/App.php";
 // Check configuration
 if (!empty($database_config)) {
     require_once "core/Connection.php";
+    require_once "core/QueryBuilder.php";
     require_once "core/Database.php";
 }
 

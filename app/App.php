@@ -30,7 +30,7 @@ class App
         } catch (Exception $ex) {
             // Handle app error
             $err_code = $ex->getCode();
-            if (!$err_code) {
+            if ($err_code != 404) {
                 $err_code = 500;
             }
             $err_data = [];
@@ -144,6 +144,4 @@ class App
     {
         require_once "app/errors/" . $name . ".php";
     }
-
-    
 }

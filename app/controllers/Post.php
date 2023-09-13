@@ -9,4 +9,12 @@ class Post extends BaseController
         print_r($posts);
         echo '</pre>';
     }
+    public function test()
+    {
+        $post_model = $this->get_model("PostsModel");
+        $data = $post_model->test_query_builder();
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+    }
 }
