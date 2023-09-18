@@ -5,6 +5,7 @@ class App
     private $__action;
     private $__parameters;
     private $__route;
+    private $__db;
 
     public static $app;
 
@@ -13,6 +14,7 @@ class App
         global $router;
         global $app_config;
 
+        // Make reference for app
         self::$app = $this;
 
         // Init route object
@@ -112,7 +114,12 @@ class App
      */
     function init($url_check)
     {
-        global $app_config;
+        // Check for exist db class. If not, raise error
+        if (class_exists("DB")) {
+            $db = new DB();
+            $this->__db = $db->get_db();
+        }
+
         // Check for exist controller file. If not, raise error
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
             // Placeholder for error handle
@@ -123,14 +130,15 @@ class App
 
         if (!class_exists($this->__controller)) {
             // Check for class $this->__controller exist
-            // placeholder for error handle
             throw new RuntimeException("CLASS NOT FOUND: Controller class '" . $this->__controller . "' not exist. Make sure you name your controller class match with controller file name!", 404);
         } else if (!method_exists($this->__controller, $this->__action)) {
             // Check for exist action
-            // Placeholder for error handle
             throw new RuntimeException("METHOD NOT FOUND: Method '" . $this->__controller . "->" . $this->__action . "()' not exist. Maybe you missing your action method in your controller class", 404);
         } else {
             $this->__controller = new $this->__controller();
+            if (!empty($this->__db)) {
+                $this->__controller->db = $this->__db;
+            }
 
             // This function use to execute a custom function 
             call_user_func_array([$this->__controller, $this->__action], $this->__parameters);

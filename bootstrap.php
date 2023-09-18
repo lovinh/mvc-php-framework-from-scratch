@@ -45,6 +45,7 @@ if (!empty($database_config)) {
     require_once "core/Connection.php";
     require_once "core/QueryBuilder.php";
     require_once "core/Database.php";
+    require_once "core/DB.php";
 }
 
 // Load app core

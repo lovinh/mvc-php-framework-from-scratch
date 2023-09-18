@@ -1,5 +1,5 @@
 <?php
-class BaseModel extends Database
+class BaseModel
 {
     protected $db;
 
@@ -7,6 +7,4 @@ class BaseModel extends Database
     {
         $this->db = new Database();
     }
-
-
 }

@@ -16,5 +16,9 @@ class Post extends BaseController
         echo '<pre>';
         print_r($data);
         echo '</pre>';
+        // $data = $post_model->test_query_builder_2();
+        // echo '<pre>';
+        // print_r($data);
+        // echo '</pre>';
     }
 }

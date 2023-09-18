@@ -14,4 +14,11 @@ class Home extends BaseController
         echo "name = " . $name . "<br/>";
         echo "page = " . $page . "<br/>";
     }
+    function test()
+    {
+        $data = $this->db->table("users")->where("id", ">", 3)->where("id", "<", 12)->order_by("username")->get();
+        echo '<pre>';
+        print_r($data);
+        echo '</pre>';
+    }
 }
