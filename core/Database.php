@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Lớp hỗ trợ kết nối và truy vấn đến cơ sở dữ liệu
  */

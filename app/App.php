@@ -14,10 +14,10 @@ class App
         global $router;
         global $app_config;
 
-        // Make reference for app
+        // Khởi tạo liên kết đến bản thân đối tượng App
         self::$app = $this;
 
-        // Init route object
+        // Khởi tạo router
         $this->__route = new Route();
 
         if (!empty($router["default_controller"])) {
@@ -26,11 +26,11 @@ class App
         $this->__action = "index";
         $this->__parameters = [];
 
-        // Init handler and catch exception
+        // Khởi tạo trình xử lý và bắt lỗi
         try {
             $this->init($this->parse_url());
         } catch (Exception $ex) {
-            // Handle app error
+            // Bắt lỗi
             $err_code = $ex->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -51,7 +51,7 @@ class App
     }
 
     /**
-     * This function use to parse an url and assign to class attribute, respectively.
+     * Hàm truy xuất thông tin lớp từ URL.
      */
     function parse_url()
     {
@@ -61,7 +61,7 @@ class App
             $url = "/";
         }
 
-        // Handle routing
+        // Xử lý định tuyến (routing handler)
         $url = $this->__route->handle_route($url);
 
         // This explode() use to seperate a string into substrings by '/' seperator.
@@ -70,7 +70,7 @@ class App
         // Using array_value() to reset array index. Now the array start from 0.
         $url_array = array_values(array_filter(explode('/', $url)));
 
-        // Check for meeting file
+        // Kiểm tra xem đường dẫn có là file hay không
         $url_check = '';
         if (!empty($url_array)) {
             foreach ($url_array as $key => $url_item) {
@@ -89,50 +89,50 @@ class App
             $url_check = $this->__controller;
         }
 
-        // Handle controller
+        // Xử lý controller
         if (!empty($url_array[0])) {
             $this->__controller = ucfirst($url_array[0]);
         } else {
             $this->__controller = ucfirst($this->__controller);
         }
 
-        // Handle action
+        // Xử lý action
         if (!empty($url_array[1])) {
             $this->__action = ucfirst($url_array[1]);
         } else {
             // placeholder for error handle
         }
 
-        // Handle parameters
+        // Xử lý các tham số
         $this->__parameters = array_slice($url_array, 2);
 
         return $url_check;
     }
 
     /**
-     * This function use to init controller object
+     * Hàm khởi tạo các thông tin từ URL đầu vào.
+     * @param string $url_check URL đầu vào.
      */
     function init($url_check)
     {
-        // Check for exist db class. If not, raise error
+        // Kiểm tra lớp DB có tồn tại không. Nếu có mới thực hiện khởi tạo đối tượng
         if (class_exists("DB")) {
             $db = new DB();
             $this->__db = $db->get_db();
         }
 
-        // Check for exist controller file. If not, raise error
+        // Kiểm tra file controller có tồn tại không
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
-            // Placeholder for error handle
             throw new RuntimeException("FILE NOT FOUND: Controller file '" . $this->__controller . "' not exist. Make sure you have created your controller file.", 404);
         }
 
         require_once "app/controllers/" . $url_check . ".php";
 
         if (!class_exists($this->__controller)) {
-            // Check for class $this->__controller exist
+            // Kiểm tra lớp controller có tồn tại không
             throw new RuntimeException("CLASS NOT FOUND: Controller class '" . $this->__controller . "' not exist. Make sure you name your controller class match with controller file name!", 404);
         } else if (!method_exists($this->__controller, $this->__action)) {
-            // Check for exist action
+            // Kiểm tra xem method của controller có tồn tại hay không
             throw new RuntimeException("METHOD NOT FOUND: Method '" . $this->__controller . "->" . $this->__action . "()' not exist. Maybe you missing your action method in your controller class", 404);
         } else {
             $this->__controller = new $this->__controller();
@@ -140,13 +140,15 @@ class App
                 $this->__controller->db = $this->__db;
             }
 
-            // This function use to execute a custom function 
+            // Hàm thực thi 
             call_user_func_array([$this->__controller, $this->__action], $this->__parameters);
         }
     }
 
     /**
-     * This function use to load a error page with error name
+     * Xuất lỗi thành một trang web dựa theo mã lỗi và dữ liệu truyền vào
+     * @param string $name Mã lỗi. Mặc định lỗi được truyền có mã `500`.
+     * @param array $data Dữ liệu truyền vào. Mặc định mảng là rỗng.
      */
     public function load_error($name = "500", $data = [])
     {

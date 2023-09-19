@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * Lớp thực hiện tạo kết nối với cơ sở dữ liệu. Được viết theo mẫu thiết kế Singleton
+ */
 class Connection
 {
     private static $instance = null;
@@ -13,6 +17,9 @@ class Connection
         $this->__conn = mysqli_connect($database_config["server"], $database_config["user"], $database_config["password"], $database_config["db_name"]);
     }
 
+    /**
+     * Trả về đối tượng lớp Connection. Nếu chưa được khởi tạo, một đối tượng Connection mới sẽ được tạo và trả về. Nếu đã có đối tượng Connection được khởi tạo, trả về bản thân đối tượng đó.
+     */
     public static function getInstance()
     {
         if (self::$instance == null) {
@@ -22,6 +29,9 @@ class Connection
         return self::$instance;
     }
 
+    /**
+     * Trả về kết nối database hiện có
+     */
     public function get_connection()
     {
         return $this->__conn;
