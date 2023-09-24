@@ -97,5 +97,25 @@ _Các luật validation với DB:_
     field('email')->unique('users')->where(fn (QueryBuilder $query) => $query->where("user", ">", 1))
 ```
 
-_Luật Validation tùy chỉnh_: Sử dụng trong trường hợp muốn tự xây dựng một luật xác thực cho các trường hợp cụ thể mà không có luật có sẵn nào có thể sử dụng.
-- **callback($rule_name, $func, $message**
+_Luật Validation tùy chỉnh_:
+
+Sử dụng trong trường hợp muốn tự xây dựng một luật xác thực cho các trường hợp cụ thể mà không có luật có sẵn nào có thể sử dụng.
+
+- **callback($rule_name, $func, $args, $message)**: Trường được chọn được xác thực thông qua luật do người dùng định nghĩa, với tên luật là $rule_name, $func là callback tùy chỉnh phải có ít nhất một biến sử dụng để đại diện cho trường được chọn và trả về kiểu bool, $args là danh sách biến bổ sung. Ví dụ chỉ định tuổi của người dùng phải lớn hơn 18 có thể định nghĩa một luật như sau:
+
+```php
+field('age')->callback('min_age', function ($age) {
+    return $age >= 18;
+}, "Tuổi phải lớn hơn 18")
+```
+
+Sử dụng biến ngoài để lưu trữ `min_age`"
+
+```php
+$min_age = 18;
+field('age')->callback('min_age', function ($age, $min_age) {
+    return $age >= $min_age;
+}, "Tuổi phải lớn hơn $min_age");
+```
+
+## Validation nâng cao 
