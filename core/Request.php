@@ -1,6 +1,13 @@
 <?php
 class Request
 {
+    // private $__rules = [];
+    // private $__messages = [];
+    public $validate;
+    function __construct()
+    {
+        $this->validate = new Validator();
+    }
     /**
      * Trả về loại phương thức yêu cầu (Request type).
      * @return string Trả về loại phương thức yêu cầu (Request type) dưới dạng lowercase.

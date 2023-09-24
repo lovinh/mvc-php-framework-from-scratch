@@ -51,5 +51,6 @@ if (!empty($database_config)) {
 // Load app core
 require_once "core/BaseModel.php";
 require_once "core/BaseController.php";
+require_once "core/Validator.php";
 require_once "core/Request.php";
 require_once "core/Response.php";

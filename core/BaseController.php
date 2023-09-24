@@ -2,10 +2,21 @@
 
 /**
  * Lớp nền của các lớp controller.
+ * @property Database $db Đối tượng database, cho phép thực hiện các tác vụ liên quan đến truy vấn từ CSDL.
+ * @property Request $request Đối tượng request, cho phép thực hiện các tác vụ liên quan đến xử lý request từ client.
+ * @property Response $response Đối tượng response, cho phép thực hiện các tác vụ liên quan đến xử lý response từ server.
  */
 class BaseController
 {
     public $db;
+    public $request;
+    public $response;
+
+    function __construct()
+    {
+        $this->request = new Request();
+        $this->response = new Response();
+    }
     /**
      * Trả về đối tượng model cụ thể
      * @param string $model_name Tên model cần lấy

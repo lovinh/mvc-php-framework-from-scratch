@@ -14,7 +14,7 @@ class Connection
         // Connect to the database;
         global $database_config;
         mysqli_report(MYSQLI_REPORT_STRICT);
-        $this->__conn = mysqli_connect($database_config["server"], $database_config["user"], $database_config["password"], $database_config["db_name"]);
+        $this->__conn = new mysqli($database_config["server"], $database_config["user"], $database_config["password"], $database_config["db_name"]);
     }
 
     /**

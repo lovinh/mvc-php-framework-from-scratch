@@ -20,7 +20,7 @@ class Database
      */
     public function query($sql)
     {
-        $result = mysqli_query($this->__conn->get_connection(), $sql);
+        $result = $this->__conn->get_connection()->query($sql);
         if (!empty($this->__conn->get_connection()->connect_error)) {
             throw new RuntimeException("DATABASE CONNECTION FAIL: " . $this->__conn->get_connection()->connect_error . "! ('sql='" . $sql . "')");
         }

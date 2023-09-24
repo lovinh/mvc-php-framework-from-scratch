@@ -23,14 +23,11 @@ class Home extends BaseController
     }
     public function get_category()
     {
-        $request = new Request();
         $this->render_view('categories/add');
     }
     public function post_category()
     {
-        $request = new Request();
-        $data = $request->get_fields_data();
-        $response = new Response();
-        $response->redirect("https://facebook.com");
+        $data = $this->request->get_fields_data();
+        $this->response->redirect("https://facebook.com");
     }
 }
