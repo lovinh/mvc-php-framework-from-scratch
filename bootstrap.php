@@ -33,6 +33,9 @@ if (!$app_config["debug_mode"]) {
     error_reporting(E_ALL);
 }
 
+// Load session
+require_once "core/Session.php";
+
 // Load routing
 require_once "core/Route.php";
 

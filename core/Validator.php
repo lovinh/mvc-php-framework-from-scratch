@@ -14,6 +14,7 @@ class Validator
         }
         return null;
     }
+
     /**
      * Thiết lập dữ liệu cho quá trình xác thực. Việc này là bắt buộc trước khi thực hiện việc xác thực.
      * @param array $field_data dữ liệu thu thập được cho quá trình xác thực.
@@ -21,6 +22,14 @@ class Validator
     public function set_fields_data($fields_data = [])
     {
         $this->__fields_data = $fields_data;
+    }
+    /**
+     * Trả về dữ liệu lưu trữ trong quá trình xác thực. Nếu gọi trước việc xác thực có thể gây mất một số ảnh hưởng của việc xác thực lên dữ liệu
+     * @return array Mảng chứa dữ liệu đã thiết lập.
+     */
+    public function get_fields_data()
+    {
+        return $this->__fields_data;
     }
     /**
      * Chỉ định tên trường được chọn để thực hiện xác thực
@@ -202,7 +211,11 @@ class Validator
 
 
     /**
-     * Phương thức tùy chỉnh luật xác thực
+     * Phương thức xác thực yêu cầu trường được chọn phải thỏa mãn hàm do người dùng định nghĩa. 
+     * @param string $rule_name Tên của luật tùy chọn
+     * @param callable $func Hàm callback do người dùng định nghĩa. Phải có ít nhất một biến số và trả về kiểu `bool`.
+     * @param array $args Danh sách tham số truyền thêm vào hàm `$func`. Mặc định hàm `$func` được truyền vào dữ liệu tại trường đang xét, danh sách tham số sẽ bổ sung thêm cho hàm.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
      */
     public function callback($rule_name, $func, $args = [], $message = "")
     {

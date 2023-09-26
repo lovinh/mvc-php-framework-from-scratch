@@ -3,11 +3,16 @@ class User extends BaseController
 {
     public function index()
     {
+
         echo "<h1>Trang người dùng</h1>";
     }
     public function get_user()
     {
-        return $this->render_view('users/add_user');
+        $data = [];
+        $data["errors"] = Session::flash("errors");
+        $data["msg"] = Session::flash("msg");
+        $data["field_data"] = Session::flash("field_data");
+        return $this->render_view('users/add_user', $data);
     }
     public function post_user()
     {
@@ -38,20 +43,19 @@ class User extends BaseController
             ]);
             $this->request->validate->field("name")->required()->min_char(5)->max_char(30);
             $this->request->validate->field("email")->required()->email()->min_char(6);
-            $this->request->validate->field("age")->required()->callback("min_age", fn ($age, $min_age) => $age >= $min_age, [$min_age]);
+            $this->request->validate->field("age")->required()->callback("min_age", [$this, "check_age"], [$min_age]);
             $this->request->validate->field("password")->required()->min_char(8);
             $this->request->validate->field("confirm_password")->required()->min_char(8)->match("password");
 
             if ($this->request->validate->is_error()) {
-                $data["errors"] = $this->request->validate->get_first_error();
-                $data["msg"] = "Đã có lỗi xảy ra!";
-            } else
-                echo "Không có lỗi!" . "</br>";
-        } else {
-            $this->response->redirect("user/get_user");
+                Session::flash("errors", $this->request->validate->get_first_error());
+                Session::flash("msg", "Đã có lỗi xảy ra!");
+                Session::flash("field_data", $this->request->get_fields_data());
+            } else {
+                Session::flash("msg", "Không có lỗi");
+            }
         }
-
-        return $this->render_view("users/add_user", $data);
+        $this->response->redirect("user/get_user");
     }
 
     public function check_age($age)

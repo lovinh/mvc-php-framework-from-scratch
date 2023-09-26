@@ -151,17 +151,17 @@ class App
 
         // Kiểm tra file controller có tồn tại không
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
-            throw new RuntimeException("FILE NOT FOUND: Controller file '" . $this->__controller . "' not exist. Make sure you have created your controller file.", 404);
+            throw new RuntimeException("FILE NOT FOUND: File controller '" . $this->__controller . "' không tồn tại. Bạn đã tạo fil controller này chưa?", 404);
         }
 
         require_once "app/controllers/" . $url_check . ".php";
 
         if (!class_exists($this->__controller)) {
             // Kiểm tra lớp controller có tồn tại không
-            throw new RuntimeException("CLASS NOT FOUND: Controller class '" . $this->__controller . "' not exist. Make sure you name your controller class match with controller file name!", 404);
+            throw new RuntimeException("CLASS NOT FOUND: Lớp controller '" . $this->__controller . "' không tồn tại. Đảm bảo rằng bạn có định nghĩa lớp này.!", 404);
         } else if (!method_exists($this->__controller, $this->__action)) {
             // Kiểm tra xem method của controller có tồn tại hay không
-            throw new RuntimeException("METHOD NOT FOUND: Method '" . $this->__controller . "->" . $this->__action . "()' not exist. Maybe you missing your action method in your controller class", 404);
+            throw new RuntimeException("METHOD NOT FOUND: Phương thức '" . $this->__controller . "->" . $this->__action . "()' Không tồn tại. Có thể bạn chưa định nghĩa phương thức này, hoặc bạn đã ghi sai tên.", 404);
         } else {
             $this->__controller = new $this->__controller();
             if (!empty($this->__db)) {

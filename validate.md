@@ -78,6 +78,9 @@ _Các luật validation tổng quát:_
 - **decimal($min, $max)**: Trường được chọn là dạng số học có số lượng số sau dấu thập phân từ $min đến $max. Để quy định chính xác bao nhiêu số sau dấu thập phần, chỉ định $min = $max.
 - **different($field)**: Trường được chọn phải khác với trường $field
 - **email**: Trường được chọn phải có định dạng email.
+- **exclude**: Trường được chọn bị loại bỏ khi trả về dữ liệu xác thực.
+- **exclude_if($field, $value)**: Trường được chọn bị loại bỏ khi trả về dữ liệu xác thực nếu một trường khác có kết quả bằng với kết quả chỉ định.
+
 - **like($pattern)**: Trường được chọn có giá trị có định dạng trùng với mẫu $pattern. Mẫu $pattern là một biểu thức chính quy.
 - **min($value)**: Trường được chọn có giá trị không được nhỏ hơn giá trị chỉ định.
 - **max($value)**: Trường được chọn có giá trị không được lớn hơn giá trị chỉ định.
@@ -101,7 +104,7 @@ _Luật Validation tùy chỉnh_:
 
 Sử dụng trong trường hợp muốn tự xây dựng một luật xác thực cho các trường hợp cụ thể mà không có luật có sẵn nào có thể sử dụng.
 
-- **callback($rule_name, $func, $args, $message)**: Trường được chọn được xác thực thông qua luật do người dùng định nghĩa, với tên luật là $rule_name, $func là callback tùy chỉnh phải có ít nhất một biến sử dụng để đại diện cho trường được chọn và trả về kiểu bool, $args là danh sách biến bổ sung. Ví dụ chỉ định tuổi của người dùng phải lớn hơn 18 có thể định nghĩa một luật như sau:
+- **callback($rule_name, $func, $args, $message)**: Trường được chọn được xác thực thông qua luật do người dùng định nghĩa, với tên luật là $rule_name, $func là callback tùy chỉnh phải có ít nhất một biến sử dụng để đại diện cho trường được chọn và trả về kiểu bool, hoặc là một mảng gồm 1, 2 phần từ, bao gồm tên object và tên method, $args là danh sách biến bổ sung. Ví dụ chỉ định tuổi của người dùng phải lớn hơn 18 có thể định nghĩa một luật như sau:
 
 ```php
 field('age')->callback('min_age', function ($age) {
@@ -118,4 +121,11 @@ field('age')->callback('min_age', function ($age, $min_age) {
 }, "Tuổi phải lớn hơn $min_age");
 ```
 
-## Validation nâng cao 
+## Validation nâng cao
+
+- Kết hợp xác thực giữa nhiều trường
+-
+
+## Công việc cần thực hiện
+
+1. Xây dựng Lớp Rules bao gồm các phương thức rule mặc định và cho phép khả năng mở rộng
