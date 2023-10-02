@@ -52,8 +52,41 @@ if (!empty($database_config)) {
 }
 
 // Load app core
+
+// Load Interface
+$interface_dir = scandir("core/interfaces");
+if (!empty($interface_dir)) {
+    foreach ($interface_dir as $interface_file) {
+        if ($interface_file != '.' && $interface_file != ".." && file_exists('core/interfaces/' . $interface_file)) {
+            require_once "core/interfaces/" . $interface_file;
+        }
+    }
+}
+
+// Load base model
 require_once "core/BaseModel.php";
+
+// Load base controller
 require_once "core/BaseController.php";
+
+// Load DefinedRules
+require_once "core/DefinedRules.php";
+
+// Load validator
 require_once "core/Validator.php";
+
+// Load custom rule (if need)
+if ($validate_config["apply_custom_rule"]) {
+    $rule_dir = scandir("app/rules");
+    if (!empty($rule_dir)) {
+        foreach ($rule_dir as $rule_file) {
+            if ($rule_file != '.' && $rule_file != ".." && file_exists('app/rules/' . $rule_file)) {
+                require_once "app/rules/" . $rule_file;
+            }
+        }
+    }
+}
+
+// Load request, response
 require_once "core/Request.php";
 require_once "core/Response.php";

@@ -121,6 +121,12 @@ field('age')->callback('min_age', function ($age, $min_age) {
 }, "Tuổi phải lớn hơn $min_age");
 ```
 
+- **custom($rule, $args)**: Lớp cho phép tạo các rule phức tạp.
+
+```php
+field('age')->custom('CheckAge', [$min_age]);
+```
+
 ## Validation nâng cao
 
 - Kết hợp xác thực giữa nhiều trường

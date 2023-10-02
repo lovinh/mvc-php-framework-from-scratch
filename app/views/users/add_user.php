@@ -1,8 +1,9 @@
 <?php
-echo (!empty($data["msg"]) ? $data["msg"] : false);
+
 ?>
 <div style="display: flex; justify-content: center; height: 100vh;">
-    <div style="display: flex; justify-content: center; align-items: center;">
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <div><?php echo (!empty($data["msg"]) ? $data["msg"] : false) ?></div>
         <form action="<?php echo _WEB_ROOT ?>/user/post_user" method="POST" style="display: flex; flex-direction: column; width: 500px; ">
             <label for="name">Họ tên:</label>
             <div style="margin-bottom: 10px;">
@@ -18,7 +19,7 @@ echo (!empty($data["msg"]) ? $data["msg"] : false);
 
             <label for="age">Age:</label>
             <div style="margin-bottom: 10px;">
-                <input type="number" id="age" name="age" value="<?php echo !empty($data["field_data"]["age"]) ? $data["field_data"]["age"] : false; ?>" style="width:100%;">
+                <input type="text" id="age" name="age" value="<?php echo !empty($data["field_data"]["age"]) ? $data["field_data"]["age"] : false; ?>" style="width:100%;">
                 <span style="color: red;"><?php echo !empty($data["errors"]["age"]) ? $data["errors"]["age"] : false; ?></span>
             </div>
 

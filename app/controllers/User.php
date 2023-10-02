@@ -1,18 +1,19 @@
 <?php
 class User extends BaseController
 {
+    public $data = [];
     public function index()
     {
-
         echo "<h1>Trang người dùng</h1>";
     }
     public function get_user()
     {
-        $data = [];
-        $data["errors"] = Session::flash("errors");
-        $data["msg"] = Session::flash("msg");
-        $data["field_data"] = Session::flash("field_data");
-        return $this->render_view('users/add_user', $data);
+        $this->data['sub_content']["errors"] = Session::flash("errors");
+        $this->data['sub_content']["msg"] = Session::flash("msg");
+        $this->data['sub_content']["field_data"] = Session::flash("field_data");
+        $this->data['page_title'] = "Thêm người dùng";
+        $this->data['content'] = "users/add_user";
+        return $this->render_view('layouts/layout_index', $this->data);
     }
     public function post_user()
     {
@@ -34,7 +35,8 @@ class User extends BaseController
                 "email.email" => "Không đúng định dạng email",
                 "email.min_char" => "Email cần có tối thiểu 6 ký tự",
                 "age.required" => "Tuổi không được để trống",
-                "age.callback_min_age" => "Tuổi hợp lệ là trên $min_age tuổi",
+                "age.integer" => "Tuổi phải là một số nguyên",
+                "age.min" => "Tuôi phải lớn hơn $min_age",
                 "password.required" => "Mật khẩu không được để trống",
                 "password.min_char" => "Mật khẩu cần có tối thiểu 8 ký tự",
                 "confirm_password.required" => "Xác nhận mật khẩu không được để trống",
@@ -43,7 +45,7 @@ class User extends BaseController
             ]);
             $this->request->validate->field("name")->required()->min_char(5)->max_char(30);
             $this->request->validate->field("email")->required()->email()->min_char(6);
-            $this->request->validate->field("age")->required()->callback("min_age", [$this, "check_age"], [$min_age]);
+            $this->request->validate->field("age")->required()->integer()->between(18, 35, "Tuổi phải nằm trong khoảng từ 18 đến 35");
             $this->request->validate->field("password")->required()->min_char(8);
             $this->request->validate->field("confirm_password")->required()->min_char(8)->match("password");
 
@@ -52,10 +54,11 @@ class User extends BaseController
                 Session::flash("msg", "Đã có lỗi xảy ra!");
                 Session::flash("field_data", $this->request->get_fields_data());
             } else {
-                Session::flash("msg", "Không có lỗi");
+                return $this->response->redirect("user/index");
             }
         }
-        $this->response->redirect("user/get_user");
+
+        return $this->response->redirect("user/get_user");
     }
 
     public function check_age($age)

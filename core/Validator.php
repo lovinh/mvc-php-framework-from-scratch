@@ -7,6 +7,8 @@ class Validator
     private $__messages = [];
     private $__have_error = false;
 
+    use DefinedRules;
+
     private function get_current_field_data()
     {
         if (!empty($this->__field_name)) {
@@ -30,6 +32,20 @@ class Validator
     public function get_fields_data()
     {
         return $this->__fields_data;
+    }
+    /**
+     * Trả về dữ liệu lưu trữ của một trường cụ thể.
+     * @param string $field_name Tên trường cần lấy dữ liệu
+     * @return array Mảng chứa dữ liệu đã thiết lập.
+     */
+    public function get_field_data($field_name)
+    {
+        if (empty($field_name)) {
+            throw new InvalidArgumentException("VALIDATOR EMPTY FIELD_NAME: Tên trường không được để trống");
+        }
+        if (empty($this->__fields_data[$field_name]))
+            return null;
+        return $this->__fields_data[$field_name];
     }
     /**
      * Chỉ định tên trường được chọn để thực hiện xác thực
@@ -110,106 +126,6 @@ class Validator
         return $this->__have_error;
     }
 
-    // Validation function
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu không được để trống.
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function required($message = "")
-    {
-        if (!empty($this->__fields_data[$this->__field_name])) {
-            return $this;
-        }
-
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn phải có tối thiểu bao nhiêu ký tự
-     * @param int $value Số ký tự tối thiểu cần có. Mặc định bằng 0.
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function min_char($value = 0, $message = "")
-    {
-        if ((!is_int($value)) || $value < 0) {
-            throw new RuntimeException("VALIDATOR ERROR: Giá trị phải là số nguyên không âm. Giá trị không phù hợp: '$value'");
-        }
-        if (strlen(trim($this->__fields_data[$this->__field_name])) >= $value) {
-            return $this;
-        }
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn chỉ được có tối đa bao nhiêu ký tự
-     * @param int $value Số ký tự tối đa được có
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function max_char($value, $message = "")
-    {
-        if ((!is_int($value)) || $value < 0) {
-            throw new RuntimeException("VALIDATOR ERROR: Giá trị phải là số nguyên không âm. Giá trị không phù hợp: '$value'");
-        }
-        if ((!is_int($value)) || $value < 0) {
-            throw new RuntimeException("VALIDATOR ERROR: Giá trị phải là số nguyên không âm. Giá trị không phù hợp: '$value'");
-        }
-        if (strlen(trim($this->__fields_data[$this->__field_name])) <= $value) {
-            return $this;
-        }
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn phải có định dạng email
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function email($message = "")
-    {
-        if (filter_var($this->__fields_data[$this->__field_name], FILTER_VALIDATE_EMAIL)) {
-            return $this;
-        }
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn phải trùng với trường dữ liệu có tên được chỉ định
-     * @param string $field_name Trường dữ liệu được chỉ định
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function match($field_name, $message = "")
-    {
-        if (trim($this->__fields_data[$this->__field_name] == trim($this->__fields_data[$field_name]))) {
-            return $this;
-        }
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn chỉ bảo gồm các ký tự trong bảng chữ cái tiếng Anh
-     * @param string $field_name Trường dữ liệu được chỉ định
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function is_alpha($message = "")
-    {
-        if (ctype_alpha($this->get_current_field_data()))
-            return $this;
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-    /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn chỉ bảo gồm các chữ số.
-     * @param string $field_name Trường dữ liệu được chỉ định
-     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
-     */
-    public function numeric($message = "")
-    {
-        if (ctype_digit($this->get_current_field_data()))
-            return $this;
-        $this->set_error($this->__field_name, __FUNCTION__, $message);
-        return $this;
-    }
-
-
     /**
      * Phương thức xác thực yêu cầu trường được chọn phải thỏa mãn hàm do người dùng định nghĩa. 
      * @param string $rule_name Tên của luật tùy chọn
@@ -224,6 +140,33 @@ class Validator
             return $this;
         }
         $this->set_error($this->__field_name, __FUNCTION__ . '_' . $rule_name, $message);
+        return $this;
+    }
+
+    /**
+     * Phương thức xác thực yêu cầu trường được chọn phải thỏa mãn luật do người dùng định nghĩa. Luật này là một lớp nằm trong thư mục `app/rules` (Nếu chưa có phải khởi tạo) và triển khai interface `Rule`.
+     * @param string $rule_name Tên của luật tùy chọn. Đây phải là một lớp được định nghĩa trong `app/rules`
+     * @param array $args Danh sách tham số truyền thêm vào. Mặc định là trường đang xét, danh sách tham số sẽ bổ sung thêm cho đối tượng luật.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function custom($rule_name, $args = [], $message = '')
+    {
+        global $validate_config;
+        if (!$validate_config["apply_custom_rule"]) {
+            throw new RuntimeException("VALIDATOR ACCESS DENIED: Không thể sử dụng luật tùy chỉnh khi chưa chỉ định cấu hình validate_config['apply_custom_rule']. Vui lòng kiểm tra lại");
+        }
+        if (!class_exists($rule_name)) {
+            throw new InvalidArgumentException("VALIDATOR UNKNOWN RULE: Luật '$rule_name' không tồn tại. Vui lòng kiểm tra lại");
+        }
+        if (!method_exists($rule_name, 'validate')) {
+            throw new BadMethodCallException("VALIDATOR BAD METHOD: Lớp được chỉ định không tồn tại phương thức 'validate()'. Vui lòng kiểm tra lại");
+        }
+        $args["field"] = $this->get_current_field_data();
+        $rule = new $rule_name();
+        if ($rule->validate($args)) {
+            return $this;
+        }
+        $this->set_error($this->__field_name, __FUNCTION__ . '_' . $rule_name, message: $message);
         return $this;
     }
 }
