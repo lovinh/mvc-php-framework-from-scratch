@@ -6,9 +6,13 @@ class Validator
     private $__errors = [];
     private $__messages = [];
     private $__have_error = false;
+    private $__db = null;
 
     use DefinedRules;
-
+    public function __construct()
+    {
+        $this->__db = new Database();
+    }
     private function get_current_field_data()
     {
         if (!empty($this->__field_name)) {
@@ -24,6 +28,15 @@ class Validator
     public function set_fields_data($fields_data = [])
     {
         $this->__fields_data = $fields_data;
+    }
+    /**
+     * 
+     */
+    public function set_current_field_data($value)
+    {
+        if (!empty($this->__field_name)) {
+            $this->__fields_data[$this->__field_name] = $value;
+        }
     }
     /**
      * Trả về dữ liệu lưu trữ trong quá trình xác thực. Nếu gọi trước việc xác thực có thể gây mất một số ảnh hưởng của việc xác thực lên dữ liệu

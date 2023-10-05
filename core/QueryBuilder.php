@@ -171,12 +171,22 @@ trait QueryBuilder
     public function first()
     {
         $sql = "SELECT $this->_select_field FROM $this->_table $this->_join $this->_where $this->_order_by_field $this->_limit";
+        echo $sql . '</br>';
         $result = $this->query($sql);
         $this->reset();
         if (mysqli_num_rows($result) < 1) {
             return null;
         }
         return $result->fetch_assoc();
+    }
+    /**
+     * Lấy ra câu lệnh truy vấn xây dựng từ các truy vấn con đã tạo. Chỉ được sử dụng ở cuối chuỗi truy vấn.
+     * @return string Câu lệnh truy vấn.
+     */
+    public function get_sql()
+    {
+        $sql = "SELECT $this->_select_field FROM $this->_table $this->_join $this->_where $this->_order_by_field $this->_limit";
+        return $sql;
     }
     private function reset()
     {

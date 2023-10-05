@@ -100,6 +100,8 @@ _Các luật validation với DB:_
     field('email')->unique('users')->where(fn (QueryBuilder $query) => $query->where("user", ">", 1))
 ```
 
+- **exist($table, $field)**: Trường được chọn phải là bảng có tồn tại trong CSDL hoặc là trường tồn tại trong bảng được chỉ định.
+
 _Luật Validation tùy chỉnh_:
 
 Sử dụng trong trường hợp muốn tự xây dựng một luật xác thực cho các trường hợp cụ thể mà không có luật có sẵn nào có thể sử dụng.
