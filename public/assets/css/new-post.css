@@ -1,0 +1,21 @@
+.new-post
+{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    max-width: 768px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.new-post-header{
+    margin-bottom: 40px;
+}
+.new-post-header-title {
+    margin-bottom: 10px;
+}
+.new-post-body {
+    margin-bottom: 20px;
+}
+.ck-editor__editable_inline{
+    min-height: 300px;
+}

@@ -33,8 +33,30 @@ if (!$app_config["debug_mode"]) {
     error_reporting(E_ALL);
 }
 
+// Load custom class
+if (!empty($app_config["service"])) {
+    $all_services = $app_config["service"];
+    if (!empty($all_services)) {
+        foreach ($all_services as $service) {
+            if (file_exists("app/core/$service.php")) {
+                require_once "app/core/$service.php";
+            }
+        }
+    }
+}
+
 // Load session
 require_once "core/Session.php";
+
+// Load middleware
+require_once "core/Middleware.php";
+
+if (!empty($app_config["route_middleware"])) {
+    $route_middleware_arr = $app_config["route_middleware"];
+    foreach ($route_middleware_arr as $route_middleware_item) {
+        var_dump($route_middleware_item);
+    }
+}
 
 // Load routing
 require_once "core/Route.php";
@@ -50,6 +72,28 @@ if (!empty($database_config)) {
     require_once "core/Database.php";
     require_once "core/DB.php";
 }
+
+// Load all helper
+// Load core helper
+$core_helper_dir = scandir("core/helpers");
+if (!empty($core_helper_dir)) {
+    foreach ($core_helper_dir as $helper_file) {
+        if ($helper_file != '.' && $helper_file != ".." && file_exists('core/helpers/' . $helper_file)) {
+            require_once "core/helpers/" . $helper_file;
+        }
+    }
+}
+
+// Load user-defined helpers
+$helper_dir = scandir("app/helpers");
+if (!empty($helper_dir)) {
+    foreach ($helper_dir as $helper_file) {
+        if ($helper_file != '.' && $helper_file != ".." && file_exists('app/helpers/' . $helper_file)) {
+            require_once "app/helpers/" . $helper_file;
+        }
+    }
+}
+
 
 // Load app core
 

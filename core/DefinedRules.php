@@ -775,6 +775,20 @@ trait DefinedRules
         return $this;
     }
 
+    /**
+     *  Trường được chọn sẽ được băm sử dụng thuật toán `$engine`. Thường sử dụng cho mật khẩu.
+     * @param string $engine Thuật toán sử dụng để băm. Mặc định sẽ là `sha256`.
+     */
+    public function hashed($engine = 'sha256')
+    {
+        if (empty($engine)) {
+            throw new InvalidArgumentException("VALIDATOR EMPTY ENGINE: Tham số engine không được để trống!");
+        }
+        $val = hash($engine, $this->get_current_field_data());
+        $this->set_current_field_data($val);
+        return $this;
+    }
+
     // VALIDATION WITH DATABASE
     /**
      * Trường được chọn phải có giá trị duy nhất trong bảng và trường được chỉ định. Nếu cột $field không được chỉ định thì tên trường được xét duy nhất sẽ chính là tên trường được chọn.
@@ -849,7 +863,9 @@ trait DefinedRules
      * // Xác thực trường email có giá trị duy nhất khi và chỉ khi giá trị của trường user lớn hơn 1
      * field('email')
      * ->unique('users')
-     * ->where(fn (Database $query) => $query->where("user", ">", 1))
+     * ->where(
+     *      fn (Database $query) => $query->where("user", ">", 1)
+     * );
      * ```
      */
     public function where($func)
@@ -880,6 +896,8 @@ trait DefinedRules
     /**
      * Trường được chọn phải có giá trị tồn tại trong trường thuộc bảng được chỉ định trong CSDL. Nếu không chỉ định tên trường thì tên trường được chỉ định sẽ là trường được chọn.
      * @param string $table_name Tên bảng được chỉ định
+     * @param string $field_name Tên trường được chỉ định. Mặc định là rỗng. Nếu là rỗng, trường được chỉ định sẽ là trường được chọn để xác thực
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
      */
     public function exists($table_name, $field_name = '', $message = '')
     {

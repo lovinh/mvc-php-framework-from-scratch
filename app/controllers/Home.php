@@ -3,13 +3,20 @@ class Home extends BaseController
 {
     public function index()
     {
+        echo CustomClass::foo();
         $this->render_view("home/index");
     }
     public function search($id = "", $name = "")
     {
-        if (!empty($_GET["page"]))
+        if (!empty($_GET["page"])) {
             $page = $_GET["page"];
-        else $page = 1;
+        } else $page = 1;
+        if (empty($id)) {
+            $id = $_GET["id"];
+        }
+        if (empty($name)) {
+            $name = $_GET["name"];
+        }
         echo "id = " . $id . "<br/>";
         echo "name = " . $name . "<br/>";
         echo "page = " . $page . "<br/>";

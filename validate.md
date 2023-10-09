@@ -39,9 +39,7 @@ Array(
 )
 ```
 
-Mỗi function như `required()` hay `min()` đều có một cài đặt check lỗi riêng.
-
-Như vậy class validate bao gồm
+Mỗi function như `required()` hay `min()` đều có một cài đặt check lỗi riêng. Như vậy class validate bao gồm:
 
 **Thuộc tính**
 
@@ -57,6 +55,18 @@ Như vậy class validate bao gồm
 - `set_message(message = [])`: Hàm set message. Tham số truyền vào dạng `"tên-validation" => "message"`
 - `get_error(<tên-field>)`: Trả về lỗi của trường cụ thể
 - `is_error()`: Trả về true nếu xảy ra lỗi, ngược lại trả về true
+
+**Chú ý**: Các luật validation sẽ được thực hiện tuần từ theo thứ tự gọi của hàm. Để thực hiện theo thứ tự được chỉ định có thể gọi các validation một cách riêng lẻ và sắp xếp theo ý của mình.
+
+Ví dụ:
+```php
+
+$this->request->validate->field("email")->required();
+$this->request->validate->field("password")->required();
+$this->request->validate->field("email")->email()->min_char(6)->max_char(10);
+// ...
+
+```
 
 ## Một số luật validate có thể tự xây dựng:
 
@@ -134,6 +144,6 @@ field('age')->custom('CheckAge', [$min_age]);
 - Kết hợp xác thực giữa nhiều trường
 -
 
-## Công việc cần thực hiện
+## Lớp Rules - Xây dựng các luật phức tạp
 
-1. Xây dựng Lớp Rules bao gồm các phương thức rule mặc định và cho phép khả năng mở rộng
+
