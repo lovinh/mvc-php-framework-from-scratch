@@ -1,5 +1,5 @@
 <?php
-class Item
+class Item extends BaseModel
 {
     private $__id;
     private $__name;

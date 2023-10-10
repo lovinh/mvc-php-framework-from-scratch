@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * @var array
+ */
 $app_config["debug_mode"] = true;
 $app_config["service"] = [
     CustomClass::class

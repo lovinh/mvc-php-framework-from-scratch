@@ -1,6 +1,6 @@
 <?php
 require_once _DIR_ROOT . "/app/models/Item.php";
-class ItemList
+class ItemList extends BaseModel
 {
     private $items;
     function __construct()

@@ -149,6 +149,10 @@ class App
             $this->__db = $db->get_db();
         }
 
+        // Xử lý middleware
+        $this->handle_global_middleware();
+        $this->handle_route_middleware($this->__route->get_route_key());
+
         // Kiểm tra file controller có tồn tại không
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
             throw new RuntimeException("FILE NOT FOUND: File controller '" . $this->__controller . "' không tồn tại. Bạn đã tạo fil controller này chưa?", 404);
@@ -181,5 +185,51 @@ class App
     public function load_error($name = "500", $data = [])
     {
         require_once "app/errors/" . $name . ".php";
+    }
+
+    private function handle_route_middleware($route_key)
+    {
+        global $app_config;
+        $route_key = trim($route_key);
+        if (!empty($app_config["route_middleware"])) {
+            $route_middleware_arr = $app_config["route_middleware"];
+            foreach ($route_middleware_arr as $key => $route_middleware_item) {
+                if ($route_key != trim($key)) {
+                    continue;
+                }
+
+                if (!file_exists("app/middlewares/$route_middleware_item.php")) {
+                    throw new RuntimeException("APP FILE MIDDLEWARE NOT FOUND: Không tìm thấy file middleware có tên '$route_middleware_item.php'. Đảm bảo bạn đã khởi tạo file này trong thư mục 'app/middlewares'");
+                }
+
+                require_once "app/middlewares/$route_middleware_item.php";
+
+                if (!class_exists($route_middleware_item)) {
+                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$route_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$route_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
+                }
+                $route_middleware_object = new $route_middleware_item();
+                $route_middleware_object->set_db($this->__db);
+                $route_middleware_object->handle();
+            }
+        }
+    }
+    private function handle_global_middleware()
+    {
+        global $app_config;
+        if (!empty($app_config["global_middleware"])) {
+            $global_middleware_arr = $app_config["global_middleware"];
+            foreach ($global_middleware_arr as $global_middleware_item) {
+                if (!file_exists("app/middlewares/$global_middleware_item.php")) {
+                    throw new RuntimeException("APP FILE MIDDLEWARE NOT FOUND: Không tìm thấy file middleware có tên '$global_middleware_item.php'. Đảm bảo bạn đã khởi tạo file này trong thư mục 'middlewares'");
+                }
+                require_once "app/middlewares/$global_middleware_item.php";
+                if (!class_exists($global_middleware_item)) {
+                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$global_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$global_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
+                }
+                $global_middleware_object = new $global_middleware_item();
+                $global_middleware_object->set_db($this->__db);
+                $global_middleware_object->handle();
+            }
+        }
     }
 }

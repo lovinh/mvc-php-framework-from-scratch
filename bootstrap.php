@@ -45,34 +45,6 @@ if (!empty($app_config["service"])) {
     }
 }
 
-// Load session
-require_once "core/Session.php";
-
-// Load middleware
-require_once "core/Middleware.php";
-
-if (!empty($app_config["route_middleware"])) {
-    $route_middleware_arr = $app_config["route_middleware"];
-    foreach ($route_middleware_arr as $route_middleware_item) {
-        var_dump($route_middleware_item);
-    }
-}
-
-// Load routing
-require_once "core/Route.php";
-
-// Load app
-require_once "app/App.php";
-
-// Load database connection
-// Check configuration
-if (!empty($database_config)) {
-    require_once "core/Connection.php";
-    require_once "core/QueryBuilder.php";
-    require_once "core/Database.php";
-    require_once "core/DB.php";
-}
-
 // Load all helper
 // Load core helper
 $core_helper_dir = scandir("core/helpers");
@@ -95,6 +67,28 @@ if (!empty($helper_dir)) {
 }
 
 
+// Load session
+require_once "core/Session.php";
+
+// Load middleware
+require_once "core/Middleware.php";
+
+
+// Load routing
+require_once "core/Route.php";
+
+// Load app
+require_once "app/App.php";
+
+// Load database connection
+// Check configuration
+if (!empty($database_config)) {
+    require_once "core/Connection.php";
+    require_once "core/QueryBuilder.php";
+    require_once "core/Database.php";
+    require_once "core/DB.php";
+}
+
 // Load app core
 
 // Load Interface
@@ -106,6 +100,8 @@ if (!empty($interface_dir)) {
         }
     }
 }
+// Load LoadUtils
+require_once "core/LoadUtils.php";
 
 // Load base model
 require_once "core/BaseModel.php";

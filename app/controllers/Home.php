@@ -8,6 +8,8 @@ class Home extends BaseController
     }
     public function search($id = "", $name = "")
     {
+        echo "Run search method" . "</br>";
+
         if (!empty($_GET["page"])) {
             $page = $_GET["page"];
         } else $page = 1;

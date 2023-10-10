@@ -4,9 +4,11 @@ class Request
     // private $__rules = [];
     // private $__messages = [];
     public $validate;
+    public $query_string;
     function __construct()
     {
         $this->validate = new Validator();
+        $this->query_string = !empty($_SERVER['QUERY_STRING']) ? $_SERVER['QUERY_STRING'] : "";
     }
     /**
      * Trả về loại phương thức yêu cầu (Request type).
