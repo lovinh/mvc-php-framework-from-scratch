@@ -153,6 +153,9 @@ class App
         $this->handle_global_middleware();
         $this->handle_route_middleware($this->__route->get_route_key());
 
+        // App Service Provider
+        $this->handle_app_service_provider();
+
         // Kiểm tra file controller có tồn tại không
         if (!file_exists("app/controllers/" . $url_check . ".php")) {
             throw new RuntimeException("FILE NOT FOUND: File controller '" . $this->__controller . "' không tồn tại. Bạn đã tạo fil controller này chưa?", 404);
@@ -208,7 +211,9 @@ class App
                     throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$route_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$route_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
                 }
                 $route_middleware_object = new $route_middleware_item();
-                $route_middleware_object->set_db($this->__db);
+                if (!empty($this->__db)) {
+                    $route_middleware_object->set_db($this->__db);
+                }
                 $route_middleware_object->handle();
             }
         }
@@ -227,8 +232,32 @@ class App
                     throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$global_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$global_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
                 }
                 $global_middleware_object = new $global_middleware_item();
-                $global_middleware_object->set_db($this->__db);
+                if (!empty($this->__db)) {
+                    $global_middleware_object->set_db($this->__db);
+                }
                 $global_middleware_object->handle();
+            }
+        }
+    }
+
+    private function handle_app_service_provider()
+    {
+        global $app_config;
+        if (!empty($app_config["boot"])) {
+            $service_providers = $app_config["boot"];
+            foreach ($service_providers as $service_provider) {
+                if (!file_exists("app/core/$service_provider.php")) {
+                    throw new RuntimeException("APP FILE SERVICE NOT FOUND: Không tìm thấy file service có tên '$service_provider.php'. Đảm bảo bạn đã khởi tạo file này trong thư mục 'app/core'");
+                }
+                require_once "app/core/$service_provider.php";
+                if (!class_exists($service_provider)) {
+                    throw new RuntimeException("APP SERVICE CLASS NOT FOUND: Không tìm thấy lớp service '$service_provider'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/core/$service_provider.php' hoặc kiểm tra lại cách đặt tên lớp.");
+                }
+                $service_provider_object = new $service_provider();
+                if (!empty($this->__db)) {
+                    $service_provider_object->set_db($this->__db);
+                }
+                $service_provider_object->boot();
             }
         }
     }

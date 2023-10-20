@@ -1,5 +1,5 @@
 <?php
-define('_DIR_ROOT', __DIR__);
+define('_DIR_ROOT', str_replace('\\', '/', __DIR__));
 // Handle http root
 // Get web url protocol
 if (!empty($_SERVER["HTTPS"]) &&  $_SERVER["HTTPS"] = "on") {
@@ -9,8 +9,8 @@ if (!empty($_SERVER["HTTPS"]) &&  $_SERVER["HTTPS"] = "on") {
 }
 
 // Get web root folder
-$document_root = implode('\\', explode('/', $_SERVER["DOCUMENT_ROOT"]));
-$folder = ltrim(str_replace(strtolower($document_root), '', strtolower(_DIR_ROOT)), '\\');
+$document_root = implode('/', explode('/', $_SERVER["DOCUMENT_ROOT"]));
+$folder = ltrim(str_replace(strtolower($document_root), '', strtolower(_DIR_ROOT)), '/');
 $web_root = $web_root . '/' . $folder;
 
 // define constant variable for web root
@@ -100,6 +100,12 @@ if (!empty($interface_dir)) {
         }
     }
 }
+// Load ServiceProvider
+require_once "core/ServiceProvider.php";
+
+// Load View
+require_once "core/View.php";
+
 // Load LoadUtils
 require_once "core/LoadUtils.php";
 

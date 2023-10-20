@@ -24,7 +24,7 @@ class BaseController
      */
     public function get_model($model_name)
     {
-        return model_loader($model_name);
+        return load_model($model_name);
     }
     /**
      * Xuất view tương ứng với tên và dữ liệu được truyền vào
@@ -34,15 +34,6 @@ class BaseController
      */
     public function render_view($view_name, $data = [])
     {
-        global $app_config;
-        if (!file_exists(_DIR_ROOT . "/app/views/" . $view_name . ".php")) {
-            // Handle error if view file not exist
-            if ($app_config["debug_mode"]) {
-                trigger_error("File view '" . $view_name . ".php' not exist!", E_USER_WARNING);
-            }
-            throw new ErrorException("File view '" . $view_name . ".php' not exist!");
-        }
-
-        require_once _DIR_ROOT . "/app/views/" . $view_name . ".php";
+        return load_view($view_name, $data);
     }
 }
