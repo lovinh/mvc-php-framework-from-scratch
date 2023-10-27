@@ -31,10 +31,13 @@ class LoadUtils
         if (!empty(View::$data_share)) {
             $data = array_merge($data, View::$data_share);
         }
+
         if (!file_exists(view_path($view_name . ".php"))) {
             // Handle error if view file not exist
             throw new ErrorException("File view '" . $view_name . ".php' không tồn tại trong thư mục " . view_path() . ". Đảm bảo bạn đã đặt đúng tên view tương ứng.");
         }
+
         require_once view_path($view_name . ".php");
+
     }
 }

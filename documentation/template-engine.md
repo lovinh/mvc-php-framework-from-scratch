@@ -9,3 +9,6 @@ Ví dụ
 
 ==> <h1> {{ $data["user"] }}</h1>
 ```
+
+## Template với layout
+

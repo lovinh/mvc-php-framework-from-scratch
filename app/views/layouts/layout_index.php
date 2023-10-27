@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="<?php echo _WEB_ROOT; ?>/public/assets/css/style.css">
-    <title><?php echo (!empty($data['page_title']) ? $data['page_title'] : "Trang chủ"); ?></title>
+    <title>{{$data["title"]}}</title>
 </head>
 
 <body>
@@ -16,7 +16,7 @@
     <main>
         <div>
             <?php
-            load_view($data['content'], $data['sub_content']);
+            load_view($data["content"], $data);
             ?>
         </div>
     </main>

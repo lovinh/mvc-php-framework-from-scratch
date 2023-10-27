@@ -26,7 +26,7 @@
             }
             $item_args = rtrim($item_args, ',');
         }
-        echo '<li style="margin-bottom: 20px;font-size:20px;"> #' . $index . ': At function <code> ' . (!empty($item["class"]) ? $item["class"] . "->" : false) . $item["function"] . '(args=[' . (!empty($item_args) ?  $item_args  : "") . '])</code> in "' . $item["file"] . '", line ' . $item["line"] . '.</li>';
+        echo '<li style="margin-bottom: 20px;font-size:20px;"> #' . $index . ': At function <code> ' . (!empty($item["class"]) ? $item["class"] . "->" : false) . $item["function"] . '(args=[' . (!empty($item_args) ?  htmlentities($item_args)  : "") . '])</code> in "' . $item["file"] . '", line ' . $item["line"] . '.</li>';
     }
 
     echo "</div><h3> RAW TRACE: </h3><div><span>" . $data["traceAsString"] . "</span></div>";

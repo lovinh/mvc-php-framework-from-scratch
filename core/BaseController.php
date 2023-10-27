@@ -34,6 +34,12 @@ class BaseController
      */
     public function render_view($view_name, $data = [])
     {
-        return load_view($view_name, $data);
+        ob_start();
+        load_view($view_name, $data);
+        $content_view = ob_get_contents();
+        ob_end_clean();
+        // echo $content_view;
+        $template = new Template();
+        $template->run($content_view, $data);
     }
 }

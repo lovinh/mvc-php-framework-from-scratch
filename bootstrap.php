@@ -112,6 +112,9 @@ require_once "core/LoadUtils.php";
 // Load base model
 require_once "core/BaseModel.php";
 
+// Load template
+require_once "core/Template.php";
+
 // Load base controller
 require_once "core/BaseController.php";
 
