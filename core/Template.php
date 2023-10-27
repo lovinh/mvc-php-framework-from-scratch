@@ -1,11 +1,14 @@
 <?php
+
+namespace app\core;
+
 class Template
 {
     private $__content = null;
     public function run($content, $data = [])
     {
         $this->__content = $content;
-    
+
         $this->parse_foreach_loop();
         $this->parse_for_loop();
         $this->parse_while_loop();

@@ -1,3 +1,7 @@
+@php
+use function app\core\helper\load_view;
+use function app\core\helper\render_block;
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 
@@ -9,21 +13,22 @@
 </head>
 
 <body>
-    <?php
-    load_view("blocks/header");
-    ?>
+    @php
+    render_block("blocks/header");
+    @endphp
     <hr />
     <main>
+        <div>Author: {{$data["author"]}}</div>
         <div>
-            <?php
-            load_view($data["content"], $data);
-            ?>
+            @php
+            render_block($data["content"], $data);
+            @endphp
         </div>
     </main>
     <hr />
-    <?php
-    load_view("blocks/footer");
-    ?>
+    @php
+    render_block("blocks/footer");
+    @endphp
     <script type="text/javascripts" src="<?php echo _WEB_ROOT; ?>/public/assets/js/script.js"></script>
 
 </body>

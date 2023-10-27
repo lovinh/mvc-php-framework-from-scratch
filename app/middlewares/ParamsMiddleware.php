@@ -1,4 +1,10 @@
 <?php
+
+namespace app\core\middleware;
+
+use app\core\Route;
+use function app\core\helper\path_info;
+
 class ParamsMiddleware extends BaseMiddleware
 {
     public function handle()

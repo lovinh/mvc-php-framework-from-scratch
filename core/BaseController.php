@@ -1,5 +1,15 @@
 <?php
 
+namespace app\core\controller;
+
+use app\core\http_context\Request;
+use app\core\http_context\Response;
+use app\core\Template;
+
+use function app\core\helper\load_model;
+use function app\core\helper\load_view;
+use function app\core\helper\view_path;
+
 /**
  * Lớp nền của các lớp controller.
  * @property Database $db Đối tượng database, cho phép thực hiện các tác vụ liên quan đến truy vấn từ CSDL.
@@ -34,11 +44,12 @@ class BaseController
      */
     public function render_view($view_name, $data = [])
     {
-        ob_start();
-        load_view($view_name, $data);
-        $content_view = ob_get_contents();
-        ob_end_clean();
-        // echo $content_view;
+        // ob_start();
+        // load_view($view_name, $data);
+        // $content_view = ob_get_contents();
+        // ob_end_clean();
+
+        $content_view = file_get_contents(view_path("$view_name.php"));
         $template = new Template();
         $template->run($content_view, $data);
     }

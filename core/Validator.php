@@ -1,4 +1,15 @@
 <?php
+
+
+namespace app\core\http_context;
+
+use app\core\db\Database;
+
+use InvalidArgumentException;
+use ValueError;
+use RuntimeException;
+use BadMethodCallException;
+
 class Validator
 {
     private $__field_name = "";
@@ -9,6 +20,7 @@ class Validator
     private $__db = null;
 
     use DefinedRules;
+
     public function __construct()
     {
         $this->__db = new Database();

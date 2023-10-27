@@ -1,5 +1,6 @@
 <?php
 
+namespace app\core\helper;
 /**
  * Trả về đường dẫn tuyệt đối của ứng dụng.
  * @param string $relative_path đường dẫn tương đối đến một file. Khi đó hàm trả về đường dẫn kèm theo phần đường dẫn tương đối.

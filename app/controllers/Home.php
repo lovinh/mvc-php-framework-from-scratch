@@ -1,9 +1,11 @@
 <?php
+
+namespace app\core\controller;
+
 class Home extends BaseController
 {
     public function index()
     {
-        echo view_path("index.php");
         $this->render_view("home\index");
     }
     public function search($id = "", $name = "")

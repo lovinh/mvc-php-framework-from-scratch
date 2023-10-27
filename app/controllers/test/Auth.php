@@ -1,4 +1,9 @@
 <?php
+
+namespace app\core\controller;
+
+use app\core\Session;
+
 class Auth extends BaseController
 {
     private $data = [];

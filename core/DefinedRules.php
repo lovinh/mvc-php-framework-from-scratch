@@ -1,5 +1,12 @@
 <?php
 
+namespace app\core\http_context;
+
+use RuntimeException;
+use ValueError;
+use InvalidArgumentException;
+use DateTime;
+
 trait DefinedRules
 {
     private $__previous_unique_table = "";

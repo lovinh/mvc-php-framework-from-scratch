@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\view;
+
 class View
 {
     public static $data_share = [];

@@ -1,4 +1,8 @@
 <?php
+
+namespace app\core\controller;
+use app\core\db\Database;
+
 class TestValidator extends BaseController
 {
     private $data = [];

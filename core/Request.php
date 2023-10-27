@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\http_context;
+
 class Request
 {
     // private $__rules = [];

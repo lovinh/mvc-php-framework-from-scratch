@@ -1,4 +1,11 @@
 <?php
+
+namespace app\core\helper;
+
+use ValueError;
+use OutOfBoundsException;
+use InvalidArgumentException;
+
 if (!function_exists("array_is_list")) {
     function array_is_list(array $array): bool
     {

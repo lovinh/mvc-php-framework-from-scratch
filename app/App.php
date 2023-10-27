@@ -1,4 +1,14 @@
 <?php
+
+namespace app;
+
+use app\core\Route;
+use app\core\db\DB;
+use Throwable;
+use Exception;
+use RuntimeException;
+
+
 class App
 {
     private $__controller;
@@ -30,9 +40,11 @@ class App
         // Khởi tạo trình xử lý và bắt lỗi
         try {
             // Khởi tạo trình xử lý
+            ob_start();
             $this->init($this->parse_url());
         } catch (Throwable $err) {
             // Bắt lỗi
+            ob_clean();
             $err_code = $err->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -56,6 +68,7 @@ class App
             die();
         } catch (Exception $ex) {
             // Bắt lỗi
+            ob_clean();
             $err_code = $ex->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -75,6 +88,8 @@ class App
             }
 
             die();
+        } finally {
+            ob_end_flush();
         }
     }
 
@@ -92,6 +107,13 @@ class App
         // Xử lý định tuyến (routing handler)
         $url = $this->__route->handle_route($url);
 
+        $url_check = $this->extract_url($url);
+
+        return $url_check;
+    }
+
+    function extract_url(string $url)
+    {
         // This explode() use to seperate a string into substrings by '/' seperator.
         // Example: Home/index/a/b/c/ => ["", "Home", "index", "a", "b", "c", ""]
         // Using array_filter() to remove empty element. From above example, this new array is ["Home", "index", "a", "b", "c"]
@@ -123,6 +145,8 @@ class App
         } else {
             $this->__controller = ucfirst($this->__controller);
         }
+        $this->__controller = "app\core\controller\\" . $this->__controller;
+
 
         // Xử lý action
         if (!empty($url_array[1])) {
@@ -136,7 +160,6 @@ class App
 
         return $url_check;
     }
-
     /**
      * Hàm khởi tạo các thông tin từ URL đầu vào.
      * @param string $url_check URL đầu vào.
@@ -144,7 +167,7 @@ class App
     function init($url_check)
     {
         // Kiểm tra lớp DB có tồn tại không. Nếu có mới thực hiện khởi tạo đối tượng
-        if (class_exists("DB")) {
+        if (class_exists("app\core\db\DB")) {
             $db = new DB();
             $this->__db = $db->get_db();
         }
@@ -207,10 +230,12 @@ class App
 
                 require_once "app/middlewares/$route_middleware_item.php";
 
-                if (!class_exists($route_middleware_item)) {
-                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$route_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$route_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
+                $route_middleware_class = "app\core\middleware\\" . $route_middleware_item;
+
+                if (!class_exists($route_middleware_class)) {
+                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$route_middleware_class'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$route_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
                 }
-                $route_middleware_object = new $route_middleware_item();
+                $route_middleware_object = new $route_middleware_class();
                 if (!empty($this->__db)) {
                     $route_middleware_object->set_db($this->__db);
                 }
@@ -228,10 +253,14 @@ class App
                     throw new RuntimeException("APP FILE MIDDLEWARE NOT FOUND: Không tìm thấy file middleware có tên '$global_middleware_item.php'. Đảm bảo bạn đã khởi tạo file này trong thư mục 'middlewares'");
                 }
                 require_once "app/middlewares/$global_middleware_item.php";
-                if (!class_exists($global_middleware_item)) {
-                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$global_middleware_item'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$global_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
+
+                $global_middleware_class = "app\core\middleware\\" . $global_middleware_item;
+
+                if (!class_exists($global_middleware_class)) {
+                    throw new RuntimeException("APP MIDDLEWARE NOT FOUND: Không tìm thấy lớp middleware '$global_middleware_class'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/middlewares/$global_middleware_item.php' hoặc kiểm tra lại cách đặt tên lớp.");
                 }
-                $global_middleware_object = new $global_middleware_item();
+
+                $global_middleware_object = new $global_middleware_class();
                 if (!empty($this->__db)) {
                     $global_middleware_object->set_db($this->__db);
                 }
@@ -250,10 +279,13 @@ class App
                     throw new RuntimeException("APP FILE SERVICE NOT FOUND: Không tìm thấy file service có tên '$service_provider.php'. Đảm bảo bạn đã khởi tạo file này trong thư mục 'app/core'");
                 }
                 require_once "app/core/$service_provider.php";
-                if (!class_exists($service_provider)) {
-                    throw new RuntimeException("APP SERVICE CLASS NOT FOUND: Không tìm thấy lớp service '$service_provider'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/core/$service_provider.php' hoặc kiểm tra lại cách đặt tên lớp.");
+
+                $service_provider_class = "app\core\service\\" . $service_provider;
+
+                if (!class_exists($service_provider_class)) {
+                    throw new RuntimeException("APP SERVICE CLASS NOT FOUND: Không tìm thấy lớp service '$service_provider_class'. Đảm bảo bạn đã định nghĩa lớp này trong file 'app/core/$service_provider.php' hoặc kiểm tra lại cách đặt tên lớp.");
                 }
-                $service_provider_object = new $service_provider();
+                $service_provider_object = new $service_provider_class();
                 if (!empty($this->__db)) {
                     $service_provider_object->set_db($this->__db);
                 }

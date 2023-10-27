@@ -1,7 +1,12 @@
 <?php
+
+namespace app\core;
+use function app\core\helper\url;
+
 class Route
 {
     private $__route_key = null;
+
     public function handle_route($url)
     {
         global $router;
@@ -31,5 +36,14 @@ class Route
     {
         return url((!empty($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : ""));
     }
+
+
+    public function get(string $uri, $handler)
+    {
+        echo $uri;
+    }
+
+    public function run()
+    {
+    }
 }
-        

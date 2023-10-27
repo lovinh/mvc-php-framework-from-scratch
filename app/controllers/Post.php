@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\controller;
+
 class Post extends BaseController
 {
     public function index()

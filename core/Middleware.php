@@ -1,4 +1,10 @@
 <?php
+
+namespace app\core\middleware;
+
+use app\core\http_context\Request;
+use app\core\http_context\Response;
+
 abstract class BaseMiddleware
 {
     protected $request;
@@ -15,6 +21,6 @@ abstract class BaseMiddleware
     {
         $this->db = $db;
     }
-    
+
     abstract public function handle();
 }
