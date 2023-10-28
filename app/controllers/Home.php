@@ -2,11 +2,18 @@
 
 namespace app\core\controller;
 
+use app\core\Route;
+use app\core\view\View;
+
 class Home extends BaseController
 {
     public function index()
     {
-        $this->render_view("home\index");
+        // $this->render_view("home\index");
+        echo '<pre>';
+        print_r(Route::$routes);
+        echo '</pre>';
+        return View::render("home\index");
     }
     public function search($id = "", $name = "")
     {

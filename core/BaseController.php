@@ -37,18 +37,14 @@ class BaseController
         return load_model($model_name);
     }
     /**
-     * Xuất view tương ứng với tên và dữ liệu được truyền vào
+     * Xuất view tương ứng với tên và dữ liệu được truyền vào. Lưu ý: Nên sử dụng return `View::render()` để thay thế hàm này.
      * @param string $view_name Tên view cần xuất
      * @param array $data Dữ liệu truyền vào view
      * @return null
+     * @deprecated
      */
     public function render_view($view_name, $data = [])
     {
-        // ob_start();
-        // load_view($view_name, $data);
-        // $content_view = ob_get_contents();
-        // ob_end_clean();
-
         $content_view = file_get_contents(view_path("$view_name.php"));
         $template = new Template();
         $template->run($content_view, $data);

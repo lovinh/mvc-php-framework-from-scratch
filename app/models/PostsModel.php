@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\model;
+
 class PostsModel extends BaseModel
 {
     function __construct()

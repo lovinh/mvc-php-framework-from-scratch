@@ -1,11 +1,18 @@
 <?php
 
 namespace app\core;
+
+use InvalidArgumentException;
+
 use function app\core\helper\url;
 
 class Route
 {
     private $__route_key = null;
+
+    public static $routes = [];
+
+    public static $current_idx = 0;
 
     public function handle_route($url)
     {
@@ -38,12 +45,42 @@ class Route
     }
 
 
-    public function get(string $uri, $handler)
+    public static function get($uri, $handler)
     {
-        echo $uri;
+        self::$routes[self::$current_idx] = [
+            "uri" => $uri,
+            "handler" => $handler,
+            "method" => "GET"
+        ];
+        self::$current_idx += 1;
+        return new self();
     }
 
-    public function run()
+    public static function name(string $name)
     {
+        if (isset(self::$routes[$name])) {
+            throw new InvalidArgumentException("INVALID ROUTE NAME: Tên của route đã được định nghĩa. Vui lòng chọn tên khác cho route này");
+        }
+        self::$routes[$name] = self::$routes[self::$current_idx - 1];
+        unset(self::$routes[self::$current_idx - 1]);
+        self::$current_idx -= 1;
+    }
+
+    public static function run($url)
+    {
+        // $url = trim($url, '/');
+        if (!empty(self::$routes)) {
+            foreach (self::$routes as $key => $value) {
+                echo '<pre>';
+                print_r($value['uri']);
+                echo '</pre>';
+                if (preg_match("~" . $value['uri'] . "~is", $url)) {
+                    $url = preg_replace("~" . $value['uri'] . "~is", $value['handler'], $url);
+                    break;
+                }
+            }
+            echo $url;
+            return $url;
+        }
     }
 }

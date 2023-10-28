@@ -44,7 +44,7 @@ class App
             $this->init($this->parse_url());
         } catch (Throwable $err) {
             // Bắt lỗi
-            ob_clean();
+            // ob_clean();
             $err_code = $err->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -68,7 +68,7 @@ class App
             die();
         } catch (Exception $ex) {
             // Bắt lỗi
-            ob_clean();
+            // ob_clean();
             $err_code = $ex->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -105,7 +105,18 @@ class App
         }
 
         // Xử lý định tuyến (routing handler)
-        $url = $this->__route->handle_route($url);
+        // $url = $this->__route->handle_route($url);
+
+        $routes_dir = scandir("app/routes");
+        if (!empty($routes_dir)) {
+            foreach ($routes_dir as $routes_file) {
+                if ($routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)) {
+                    require_once "app/routes/" . $routes_file;
+                }
+            }
+        }
+
+        $url = Route::run($url);
 
         $url_check = $this->extract_url($url);
 
@@ -171,6 +182,8 @@ class App
             $db = new DB();
             $this->__db = $db->get_db();
         }
+
+
 
         // Xử lý middleware
         $this->handle_global_middleware();
