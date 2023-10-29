@@ -1,6 +1,8 @@
 <?php
 
-namespace app\core\controller;
+namespace app\core\controller\test\webtest;
+
+use app\core\controller\BaseController;
 
 class Product extends BaseController
 {

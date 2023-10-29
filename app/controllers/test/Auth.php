@@ -1,6 +1,8 @@
 <?php
 
-namespace app\core\controller;
+namespace app\core\controller\test;
+
+use app\core\controller\BaseController;
 
 use app\core\Session;
 

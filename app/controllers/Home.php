@@ -9,10 +9,6 @@ class Home extends BaseController
 {
     public function index()
     {
-        // $this->render_view("home\index");
-        echo '<pre>';
-        print_r(Route::$routes);
-        echo '</pre>';
         return View::render("home\index");
     }
     public function search($id = "", $name = "")

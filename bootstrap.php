@@ -139,3 +139,28 @@ if ($validate_config["apply_custom_rule"]) {
 // Load request, response
 require_once "core/Request.php";
 require_once "core/Response.php";
+
+
+// Load custom controllers
+
+use function app\core\helper\app_path;
+
+$path = "controllers";
+$stack_load = scandir(app_path($path));
+while (!empty($stack_load)) {
+    $consider = array_pop($stack_load);
+    if ($consider == '.' || $consider == '..')
+        continue;
+    if (is_file(app_path($path . "/" . $consider))) {
+        include_once app_path($path . "/" . $consider);
+        continue;
+    }
+    if (is_dir(app_path($path . "/" . $consider))) {
+        $sub_dir = scandir(app_path($path . "/" . $consider));
+        foreach ($sub_dir as $value) {
+            if ($value == "." || $value == "..") continue;
+            $stack_load[] = $consider . "/" . $value;
+        }
+        continue;
+    }
+}
