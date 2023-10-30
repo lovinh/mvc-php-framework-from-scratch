@@ -2,6 +2,7 @@
 
 namespace app\core\helper;
 
+use app\core\Route;
 use ValueError;
 use OutOfBoundsException;
 use InvalidArgumentException;
@@ -86,3 +87,30 @@ function assets($file_path = '')
     }
     return $url;
 }
+
+/**
+ * Sinh ra một đường dẫn tới một route đã được đặt tên và đăng ký.
+ * @param string $route_name Tên route đã được đăng ký. Nếu tên route chưa tồn tại sẽ thông báo lỗi.
+ * @param array $query_params Mảng chứa danh sách tham số theo cấu trúc: `["<tên-tham-số>" => "<giá-trị>"]`. Các giá trị của tham số sẽ được tự động điền vào các tham số tương ứng trong route. Nếu tham số không xuất hiện trong danh sách tham số của route, các tham số sẽ nằm trong chuỗi query string.
+ * @return string Đường dẫn được tạo.
+ */
+function route_url(string $route_name, array $query_params = [])
+{
+    if (!array_key_exists($route_name, Route::$mapping_name_idx)) {
+        throw new OutOfBoundsException("ROUTE NAME NOT FOUND: Không tìm thấy route có tên '{$route_name}'");
+    }
+    $url = _WEB_ROOT . Route::$routes[Route::$mapping_name_idx[$route_name]]['uri'];
+    foreach ($query_params as $param => $value) {
+        if (preg_match('~{\s*' . $param . '\s*}~s', $url)) {
+            $url = preg_replace('~{\s*' . $param . '\s*}~s', $value, $url);
+            unset($query_params[$param]);
+        }
+    }
+    $url .= empty($query_params) ? false : '?';
+    foreach ($query_params as $param => $value) {
+        $url .= $param . '=' . $value . '&';
+    }
+    return rtrim($url, '&');
+}
+
+

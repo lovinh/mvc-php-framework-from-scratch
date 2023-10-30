@@ -2,6 +2,7 @@
 use function app\core\helper\public_url;
 use function app\core\helper\assets;
 use function app\core\helper\render_block;
+
 @endphp
 <!DOCTYPE html>
 <html lang="en">
@@ -30,7 +31,7 @@ https://www.tooplate.com/view/2114-pixie
 
 <body>
   @php
-  render_block("test/web_test/block/header");
+  render_block("test/web_test/block/header", $data);
   @endphp
 
   <!-- Page Content -->
@@ -39,7 +40,7 @@ https://www.tooplate.com/view/2114-pixie
   @endphp
 
   @php
-  render_block("test/web_test/block/footer");
+  render_block("test/web_test/block/footer", $data);
   @endphp
 
   <!-- Bootstrap core JavaScript -->

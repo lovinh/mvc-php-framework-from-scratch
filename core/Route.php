@@ -15,6 +15,8 @@ class Route
 
     public static $current_idx = 0;
 
+    public static $mapping_name_idx = [];
+
     public function get_route_key()
     {
         return $this->__route_key;
@@ -79,63 +81,100 @@ class Route
 
     public static function name(string $name)
     {
-        if (isset(self::$routes[$name])) {
-            throw new InvalidArgumentException("INVALID ROUTE NAME: Tên của route đã được định nghĩa. Vui lòng chọn tên khác cho route này");
+        if (isset(self::$mapping_name_idx[$name])) {
+            throw new InvalidArgumentException("INVALID ROUTE NAME: Tên route '$name' đã được định nghĩa cho route index '" . self::$mapping_name_idx[$name] . "'. Vui lòng chọn tên khác cho route này (Index hiện tại: " . self::$current_idx . ")");
         }
-        self::$routes[$name] = self::$routes[self::$current_idx - 1];
-        unset(self::$routes[self::$current_idx - 1]);
-        self::$current_idx -= 1;
+        self::$mapping_name_idx[$name] = self::$current_idx - 1;
+        return new self();
+    }
+
+    public static function where(string $param_name, string $regex_pattern)
+    {
+        if (empty($param_name)) {
+            throw new InvalidArgumentException("ROUTE INVALID PARAM NAME: Tên của param request không được để trống!");
+        }
+        if (empty($regex_pattern)) {
+            throw new InvalidArgumentException("ROUTE INVALID REGEX PATTERN: Biểu thức chính quy không được để trống!");
+        }
+        if (empty(self::$routes[self::$current_idx - 1]["params"])) {
+            return new self();
+        }
+        if (!array_key_exists($param_name, self::$routes[self::$current_idx - 1]["params"])) {
+            throw new InvalidArgumentException("ROUTE INVALID PARAM NAME: Tên của param request không tồn tại!");
+        }
+        self::$routes[self::$current_idx - 1]["params"][$param_name] = $regex_pattern;
+        return new self();
+    }
+
+    public static function where_in(string $param_name, array $item_list)
+    {
+        if (empty($param_name)) {
+            throw new InvalidArgumentException("ROUTE INVALID PARAM NAME: Tên của param request không được để trống!");
+        }
+        if (empty($item_list)) {
+            throw new InvalidArgumentException("ROUTE INVALID ITEM LIST: Danh sách phần tử không được để trống!");
+        }
+        if (empty(self::$routes[self::$current_idx - 1]["params"])) {
+            return new self();
+        }
+        if (!array_key_exists($param_name, self::$routes[self::$current_idx - 1]["params"])) {
+            throw new InvalidArgumentException("ROUTE INVALID PARAM NAME: Tên của param request không tồn tại!");
+        }
+        self::$routes[self::$current_idx - 1]["params"][$param_name] = implode('|', $item_list);
+        return new self();
+    }
+
+    public static function group()
+    {
+
     }
 
     // Handling method
 
     public static function handle($url, $method): array
     {
-
-        $returned = [
-            "handler" => null,
-            "params" => null
-        ];
-
+        $setup = function ($route, $params) {
+            $returned = [
+                "handler" => null,
+                "params" => null
+            ];
+            $returned['handler'] = $route["handler"];
+            $returned['params'] = $params;
+            return $returned;
+        };
         // Duyệt các route được đăng ký
         foreach (self::$routes as $key => $route) {
             // Tìm kiếm uri match với uri đã đăng ký route
+            $mapping_result = self::map_uri($url, $route['uri'], $route['params']);
 
-            $mapping_result = self::map_uri($url, $route['uri']);
-
-            if ($mapping_result['is_map']) {
-                $params = $mapping_result['params'];
-
-                if ($route['method'] == strtoupper($method)) {
-                    $returned['handler'] = $route["handler"];
-                    $returned['params'] = $params;
-                    return $returned;
-                }
-                if (is_array($route['method'])) {
-                    if (in_array(strtoupper($method), $route['method'])) {
-                        $returned['handler'] = $route["handler"];
-                        $returned['params'] = $params;
-                        return $returned;
-                    }
-                }
-                if ($route['method'] == "ANY") {
-                    $returned['handler'] = $route["handler"];
-                    $returned['params'] = $params;
-                    return $returned;
-                }
-                if ($route['method'] == "NULL") {
-                    $returned['handler'] = $route["handler"];
-                    $returned['params'] = $params;
-                    return $returned;
-                }
+            if (!$mapping_result['is_map'])
                 continue;
+
+            $params = $mapping_result['params'];
+
+            if ($route['method'] == strtoupper($method)) {
+                return $setup($route, $params);
             }
+            if (is_array($route['method'])) {
+                if (in_array(strtoupper($method), $route['method'])) {
+                    return $setup($route, $params);
+                }
+            }
+            if ($route['method'] == "ANY") {
+                return $setup($route, $params);
+            }
+            if ($route['method'] == "NULL") {
+                return $setup($route, $params);
+            }
+            continue;
         }
 
         self::abort();
     }
 
-    private static function map_uri(string $url, string $uri)
+    // Helper method
+
+    private static function map_uri(string $url, string $uri, $validated_params = [])
     {
         $exploded_uri = explode('/', $uri);
         $exploded_url = explode('/', $url);
@@ -143,11 +182,19 @@ class Route
             "is_map" => true,
             "params" => []
         ];
-        foreach ($exploded_uri as $key => $value) {
-            if (preg_match('~{\s*(.+?)\s*}~is', $value) && !empty($exploded_url[$key])) {
+        if (count($exploded_uri) != count($exploded_url)) {
+            $returned["is_map"] = false;
+            return $returned;
+        }
+        for ($i = 0; $i <= count($exploded_uri) - 1; $i++) {
+            if (preg_match('~{\s*(.+?)\s*}~is', $exploded_uri[$i], $match) && !empty($exploded_url[$i])) {
+                if (!empty($validated_params[$match[1]]) && !preg_match('~' . $validated_params[$match[1]] . '~s', $exploded_url[$i])) {
+                    $returned["is_map"] = false;
+                    return $returned;
+                }
                 continue;
             }
-            if ($exploded_url[$key] != $value) {
+            if ($exploded_url[$i] != $exploded_uri[$i]) {
                 $returned['is_map'] = false;
                 break;
             }
@@ -169,7 +216,7 @@ class Route
         $exploded_uri = explode('/', $uri);
         foreach ($exploded_uri as $key => $value) {
             if (preg_match('~{\s*(.+?)\s*}~is', $value, $match)) {
-                $params[$match[1]] = $key;
+                $params[$match[1]] = null;
             }
         }
         return $params;

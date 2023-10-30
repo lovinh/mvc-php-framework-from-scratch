@@ -46,7 +46,7 @@ class App
             $this->init($this->parse_url());
         } catch (Throwable $err) {
             // Bắt lỗi
-            // ob_clean();
+            ob_clean();
             $err_code = $err->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -70,7 +70,7 @@ class App
             die();
         } catch (Exception $ex) {
             // Bắt lỗi
-            // ob_clean();
+            ob_clean();
             $err_code = $ex->getCode();
             if ($err_code != 404) {
                 $err_code = 500;
@@ -96,6 +96,67 @@ class App
     }
 
     /**
+     * Hàm khởi tạo các thông tin từ URL đầu vào.
+     * @param string $url_check URL đầu vào.
+     */
+    function init($url_check)
+    {
+        // Kiểm tra lớp DB có tồn tại không. Nếu có mới thực hiện khởi tạo đối tượng
+        if (class_exists("app\core\db\DB")) {
+            $db = new DB();
+            $this->__db = $db->get_db();
+        }
+
+        // Định tuyến
+        $routes_dir = scandir("app/routes");
+        if (!empty($routes_dir)) {
+            foreach ($routes_dir as $routes_file) {
+                if (
+                    $routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)
+                ) {
+                    require_once "app/routes/" . $routes_file;
+                }
+            }
+        }
+
+        // Xử lý middleware
+        $this->handle_global_middleware();
+
+        $request_method = $_POST["_method"] ?? $_SERVER["REQUEST_METHOD"];
+
+        $handler = Route::handle($url_check, $request_method);
+
+        // echo "APP DEBUG PRINTOUT ROUTES:";
+        // echo '<pre>';
+        // print_r(Route::$routes);
+        // echo '</pre>';
+        // echo "APP DEBUG PRINTOUT HANDLER:";
+        // echo '<pre>';
+        // print_r($handler);
+        // echo '</pre>';
+
+        // $this->handle_route_middleware($this->__route->get_route_key());
+
+        // App Service Provider
+        $this->handle_app_service_provider();
+
+        // Handler
+        $this->handle($handler);
+    }
+
+    /**
+     * Xuất lỗi thành một trang web dựa theo mã lỗi và dữ liệu truyền vào
+     * @param string $name Mã lỗi. Mặc định lỗi được truyền có mã `500`.
+     * @param array $data Dữ liệu truyền vào. Mặc định mảng là rỗng.
+     */
+    public function load_error($name = "500", $data = [])
+    {
+        require_once "app/errors/" . $name . ".php";
+    }
+
+    // Helper functions
+
+    /**
      * Hàm truy xuất thông tin lớp từ URL.
      */
     function parse_url()
@@ -112,7 +173,6 @@ class App
 
         return $url_check;
     }
-
     function extract_url(string $url)
     {
         $url_array = array_values(array_filter(explode('/', $url)));
@@ -157,61 +217,6 @@ class App
 
         return $url_check;
     }
-    /**
-     * Hàm khởi tạo các thông tin từ URL đầu vào.
-     * @param string $url_check URL đầu vào.
-     */
-    function init($url_check)
-    {
-        // Kiểm tra lớp DB có tồn tại không. Nếu có mới thực hiện khởi tạo đối tượng
-        if (class_exists("app\core\db\DB")) {
-            $db = new DB();
-            $this->__db = $db->get_db();
-        }
-
-        // Định tuyến
-        $routes_dir = scandir("app/routes");
-        if (!empty($routes_dir)) {
-            foreach ($routes_dir as $routes_file) {
-                if (
-                    $routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)
-                ) {
-                    require_once "app/routes/" . $routes_file;
-                }
-            }
-        }
-
-        // Xử lý middleware
-        $this->handle_global_middleware();
-
-        $request_method = $_POST["_method"] ?? $_SERVER["REQUEST_METHOD"];
-
-        $handler = Route::handle($url_check, $request_method);
-
-        // echo "APP DEBUG PRINTOUT ROUTES:";
-        // echo '<pre>';
-        // print_r(Route::$routes);
-        // echo '</pre>';
-
-        // $this->handle_route_middleware($this->__route->get_route_key());
-
-        // App Service Provider
-        $this->handle_app_service_provider();
-
-        // Handler
-        $this->handle($handler);
-    }
-
-    /**
-     * Xuất lỗi thành một trang web dựa theo mã lỗi và dữ liệu truyền vào
-     * @param string $name Mã lỗi. Mặc định lỗi được truyền có mã `500`.
-     * @param array $data Dữ liệu truyền vào. Mặc định mảng là rỗng.
-     */
-    public function load_error($name = "500", $data = [])
-    {
-        require_once "app/errors/" . $name . ".php";
-    }
-
     private function handle_global_middleware()
     {
         global $app_config;

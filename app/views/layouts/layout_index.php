@@ -18,7 +18,7 @@ use function app\core\helper\render_block;
     @endphp
     <hr />
     <main>
-        <div>Author: {{$data["author"]}}</div>
+        <div>Author: {{$data["author"]?? "Unknown"}}</div>
         <div>
             @php
             render_block($data["content"], $data);

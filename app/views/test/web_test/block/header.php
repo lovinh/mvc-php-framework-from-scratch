@@ -1,5 +1,7 @@
 @php
 use function app\core\helper\assets;
+use function app\core\helper\route_url;
+
 @endphp
 <!-- Pre Header -->
 <div id="pre-header">
@@ -21,13 +23,12 @@ use function app\core\helper\assets;
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="index.html">Home
-                        <span class="sr-only">(current)</span>
+                <li class="nav-item {{$data['page'] == 'webtest.home' ? 'active': false}}">
+                    <a class="nav-link" href="{{route_url('webtest.home')}}">Home
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="products.html">Products</a>
+                <li class="nav-item {{$data['page'] == 'webtest.product' ? 'active' : false}}">
+                    <a class="nav-link" href="{{route_url('webtest.product')}}">Products</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="about.html">About Us</a>

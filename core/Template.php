@@ -17,7 +17,7 @@ class Template
         $this->parse_php_end();
         $this->parse_html_entities();
         $this->parse_raw();
-
+        // echo $this->__content;
         eval("?> " . $this->__content . " <?php");
     }
 

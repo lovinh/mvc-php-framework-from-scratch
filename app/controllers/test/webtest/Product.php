@@ -9,7 +9,8 @@ class Product extends BaseController
     public function index()
     {
         $data = [
-            "view" => "test/web_test/page/product/index"
+            "view" => "test/web_test/page/product/index",
+            "page" => "webtest.product"
         ];
         $this->render_view("layouts/layout_webtest", $data);
     }
