@@ -2,7 +2,9 @@
 
 namespace app\core;
 
+use app\core\http_context\Request;
 use app\core\http_context\Response;
+use app\core\middleware\BaseMiddleware;
 use InvalidArgumentException;
 
 use function app\core\helper\url;
@@ -17,16 +19,20 @@ class Route
 
     public static $mapping_name_idx = [];
 
-    public function get_route_key()
-    {
-        return $this->__route_key;
-    }
+    private static $fallback = null;
+
+    private static $route_middleware = null;
 
     public static function get_full_url()
     {
         return url((!empty($_SERVER['PATH_INFO']) ? ltrim($_SERVER['PATH_INFO'], '/') : ""));
     }
 
+    /**
+     * Đăng ký route cho request có phương thức GET.
+     * @param string $uri Đường dẫn tài nguyên của request
+     * @param mixed $handler callable object. Trình xử lý khi route gặp request phù hợp.
+     */
     public static function get(string $uri, $handler)
     {
         $params = self::parse_uri($uri);
@@ -71,12 +77,21 @@ class Route
 
     public static function redirect(string $source_uri, string $destination_uri, $status_code = 302)
     {
-        $handler = function ($destination_uri, $status_code) {
+        $handler = function () use ($destination_uri, $status_code) {
             http_response_code($status_code);
             header("Location: " . url(trim($destination_uri, '/')));
             exit;
         };
-        return self::set_route($source_uri, $handler, [$destination_uri, $status_code], "NULL");
+        return self::set_route($source_uri, $handler, [], "NULL");
+    }
+
+    /**
+     * Route xử lý khi không tìm thấy bất kỳ route nào có thể xử lý được request. Lưu ý: Route này luôn phải được gọi cuối cùng trong dãy đăng ký route.
+     * @param mixed $handle Hàm xử lý của route fallback khi không tìm thấy route nào thỏa mãn xử lý request.
+     */
+    public static function fallback($handler)
+    {
+        self::$fallback = $handler;
     }
 
     public static function name(string $name)
@@ -126,13 +141,33 @@ class Route
 
     public static function group()
     {
+    }
 
+    public static function middleware(string|array $middleware_class)
+    {
+        if (empty($middleware_class)) {
+            throw new InvalidArgumentException("ROUTE INVALID MIDDLEWARE CLASS: Tên middlewares class không được để trống!");
+        }
+        if (!is_array($middleware_class)) {
+            $middleware_class = array($middleware_class);
+        }
+        if (is_array($middleware_class) && empty($middleware_class)) {
+            throw new InvalidArgumentException("ROUTE INVALID MIDDLEWARE CLASS: Mảng middlewares class không được để trống!");
+        }
+        $init_middleware_class = [];
+        foreach ($middleware_class as $key => $value) {
+            $init_middleware_class[$value] = new $value();
+        }
+        self::$routes[self::$current_idx - 1]['middleware'] = $init_middleware_class;
     }
 
     // Handling method
 
-    public static function handle($url, $method): array
+    public static function handle(Request $request): array
     {
+        $url = $request->path();
+        $method = $request->get_method();
+        self::$route_middleware = new BaseMiddleware();
         $setup = function ($route, $params) {
             $returned = [
                 "handler" => null,
@@ -144,11 +179,23 @@ class Route
         };
         // Duyệt các route được đăng ký
         foreach (self::$routes as $key => $route) {
+
             // Tìm kiếm uri match với uri đã đăng ký route
             $mapping_result = self::map_uri($url, $route['uri'], $route['params']);
 
             if (!$mapping_result['is_map'])
                 continue;
+
+            // Xử lý route middleware
+            self::$route_middleware->clear();
+
+            if (!empty($route['middleware'])) {
+                foreach ($route['middleware'] as $middleware) {
+                    self::$route_middleware->add(new $middleware());
+                }
+
+                self::$route_middleware->run($request);
+            }
 
             $params = $mapping_result['params'];
 
@@ -169,7 +216,14 @@ class Route
             continue;
         }
 
-        self::abort();
+        if (empty(self::$fallback)) {
+            self::abort();
+        } else {
+            $route = [
+                "handler" => self::$fallback
+            ];
+            return $setup($route, []);
+        }
     }
 
     // Helper method

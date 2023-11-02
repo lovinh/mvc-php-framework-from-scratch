@@ -7,7 +7,9 @@ use app\core\controller\Hometest;
 use app\core\controller\Product;
 use app\core\controller\test\webtest\Product as WebtestProduct;
 use app\core\http_context\Request;
+use app\core\middleware\AuthMiddleware;
 use app\core\view\View;
+use TestMiddleware;
 
 use function app\core\helper\route_url;
 
@@ -48,7 +50,22 @@ Route::get("/test-params/{id}/{name}/{size}", function ($id, $name, $size) {
     echo "Page: " . $data['page'];
 })->where("name", "[t]")->where_in("size", ['s', 'm', 'l'])->name('test-params');
 
+Route::get("/test-middleware", function () {
+    echo "Kiểm tra middleware thui mà <3";
+})->middleware([AuthMiddleware::class, TestMiddleware::class]);
 
 Route::get('/webtest', [Hometest::class, 'index'])->name('webtest.home');
 Route::get('/webtest/trang-chu', [Hometest::class, 'index']);
 Route::get('/webtest/san-pham', [WebtestProduct::class, 'index'])->name('webtest.product');
+
+Route::get("/json-test/{id}/{name}", function (string $id, string $name) {
+    return [
+        "id" => $id,
+        "name" => $name
+    ];
+});
+
+Route::fallback(function () {
+    http_response_code(404);
+    View::render("404");
+});

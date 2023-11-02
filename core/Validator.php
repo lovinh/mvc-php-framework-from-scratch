@@ -177,6 +177,7 @@ class Validator
     public function custom($rule_name, $args = [], $message = '')
     {
         global $validate_config;
+        $rule_name .= "app/core/http_context";
         if (!$validate_config["apply_custom_rule"]) {
             throw new RuntimeException("VALIDATOR ACCESS DENIED: Không thể sử dụng luật tùy chỉnh khi chưa chỉ định cấu hình validate_config['apply_custom_rule']. Vui lòng kiểm tra lại");
         }

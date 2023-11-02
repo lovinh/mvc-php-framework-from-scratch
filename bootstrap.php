@@ -33,17 +33,6 @@ if (!$app_config["debug_mode"]) {
     error_reporting(E_ALL);
 }
 
-// Load custom class
-if (!empty($app_config["service"])) {
-    $all_services = $app_config["service"];
-    if (!empty($all_services)) {
-        foreach ($all_services as $service) {
-            if (file_exists("app/core/$service.php")) {
-                require_once "app/core/$service.php";
-            }
-        }
-    }
-}
 
 // Load all helper
 // Load core helper
@@ -71,7 +60,7 @@ if (!empty($helper_dir)) {
 require_once "core/Session.php";
 
 // Load middleware
-require_once "core/Middleware.php";
+require_once "core/BaseMiddleware.php";
 
 
 // Load routing
@@ -140,10 +129,21 @@ if ($validate_config["apply_custom_rule"]) {
 require_once "core/Request.php";
 require_once "core/Response.php";
 
+use function app\core\helper\app_path;
+
+// Load middleware
+$path = "middlewares";
+$middleware_dir = scandir(app_path($path));
+if (!empty($middleware_dir)) {
+    foreach ($middleware_dir as $middleware_file) {
+        if ($middleware_file != '.' && $middleware_file != ".." && file_exists(app_path($path . "/" . $middleware_file))) {
+            require_once app_path($path . "/" . $middleware_file);
+        }
+    }
+}
 
 // Load custom controllers
 
-use function app\core\helper\app_path;
 
 $path = "controllers";
 $stack_load = scandir(app_path($path));
@@ -162,5 +162,27 @@ while (!empty($stack_load)) {
             $stack_load[] = $consider . "/" . $value;
         }
         continue;
+    }
+}
+
+// Load Route
+$routes_dir = scandir("app/routes");
+if (!empty($routes_dir)) {
+    foreach ($routes_dir as $routes_file) {
+        if (
+            $routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)
+        ) {
+            require_once "app/routes/" . $routes_file;
+        }
+    }
+}
+
+// Load Services and custom class
+$service_dir = scandir(app_path("core"));
+if (!empty($service_dir)) {
+    foreach ($service_dir as $service_file) {
+        if ($service_file != "." && $service_file != ".." && file_exists(app_path("core/" . $service_file))) {
+            require_once app_path("core/" . $service_file);
+        }
     }
 }
