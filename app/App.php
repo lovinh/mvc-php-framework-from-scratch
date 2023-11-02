@@ -127,16 +127,6 @@ class App
         $handler = Route::handle($this->__request, $request_method);
 
         // Xử lý route middleware
-
-        // echo "APP DEBUG PRINTOUT ROUTES:";
-        // echo '<pre>';
-        // print_r(Route::$routes);
-        // echo '</pre>';
-        // echo "APP DEBUG PRINTOUT HANDLER:";
-        // echo '<pre>';
-        // print_r($handler);
-        // echo '</pre>';
-
         // $this->handle_route_middleware($this->__route->get_route_key());
 
         // App Service Provider

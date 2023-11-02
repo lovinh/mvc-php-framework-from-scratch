@@ -9,12 +9,19 @@ use app\core\controller\test\webtest\Product as WebtestProduct;
 use app\core\http_context\Request;
 use app\core\middleware\AuthMiddleware;
 use app\core\view\View;
+use SecondMiddleware;
 use TestMiddleware;
+use ThirdMiddleware;
 
 use function app\core\helper\route_url;
 
-Route::get("/san-pham", [Product::class, 'index'])->name("product");
-Route::get("/san-pham/ma-mat-hang/{id}", [Product::class, 'detail']);
+// Route::get("/san-pham", [Product::class, 'index'])->name("product");
+// Route::get("/san-pham/ma-mat-hang/{id}", [Product::class, 'detail']);
+
+Route::group(function () {
+    Route::get("/san-pham", "index");
+    Route::get("/san-pham/ma-mat-hang/{id}", "detail");
+})->controller(Product::class);
 
 Route::get("/", [Home::class, 'index']);
 
@@ -33,6 +40,15 @@ Route::any("/any", function () {
 Route::match(["get", "post"], "/match", function () {
     echo "MATCH REQUEST METHOD ALLOW!";
 });
+
+Route::group(function () {
+    Route::get("/group/test1", function () {
+        echo "Group test 1 </br>";
+    });
+    Route::get("/group/test2", function () {
+        echo "Group test 2 </br>";
+    });
+})->middleware([SecondMiddleware::class, ThirdMiddleware::class]);
 
 Route::redirect('/hey', '/');
 
@@ -58,12 +74,14 @@ Route::get('/webtest', [Hometest::class, 'index'])->name('webtest.home');
 Route::get('/webtest/trang-chu', [Hometest::class, 'index']);
 Route::get('/webtest/san-pham', [WebtestProduct::class, 'index'])->name('webtest.product');
 
+
 Route::get("/json-test/{id}/{name}", function (string $id, string $name) {
     return [
         "id" => $id,
         "name" => $name
     ];
 });
+
 
 Route::fallback(function () {
     http_response_code(404);

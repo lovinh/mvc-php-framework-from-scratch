@@ -5,6 +5,7 @@ namespace app\core;
 use app\core\http_context\Request;
 use app\core\http_context\Response;
 use app\core\middleware\BaseMiddleware;
+use ErrorException;
 use InvalidArgumentException;
 
 use function app\core\helper\url;
@@ -22,6 +23,8 @@ class Route
     private static $fallback = null;
 
     private static $route_middleware = null;
+
+    private static $group_idx = [];
 
     public static function get_full_url()
     {
@@ -139,11 +142,26 @@ class Route
         return new self();
     }
 
-    public static function group()
+    /**
+     * Nhóm các route có các tính chất chung (Chung middleware, chung controller, ...) lại với nhau.
+     * @param callable $group_handler hàm callable gồm các phương thức chỉ định route, được gọi ngay sau khi hàm group thực hiện.
+     */
+    public static function group(callable $group_handler)
     {
+        $start_group_idx = self::$current_idx;
+        call_user_func($group_handler);
+        $end_group_idx = self::current_idx();
+        for ($i = $start_group_idx; $i <= $end_group_idx; $i++) {
+            array_push(self::$group_idx, $i);
+        }
+        return new self();
     }
 
-    public static function middleware(string|array $middleware_class)
+    /**
+     * Chỉ định lớp middleware sử dụng riêng cho route được chọn. Nếu đang chỉ có một route được chọn thì controller sẽ chỉ gắn cho riêng route đó. Nếu một nhóm route được chọn thì các middleware sẽ được gán cho tất cả các route có trong nhóm
+     * @param string|array $middleware_class Tên lớp middleware chỉ định cho route đang được chọn. Chấp nhận đầu vào là một mảng.
+     */
+    public static function middleware(string|array $middleware_class, $params = [])
     {
         if (empty($middleware_class)) {
             throw new InvalidArgumentException("ROUTE INVALID MIDDLEWARE CLASS: Tên middlewares class không được để trống!");
@@ -158,7 +176,48 @@ class Route
         foreach ($middleware_class as $key => $value) {
             $init_middleware_class[$value] = new $value();
         }
-        self::$routes[self::$current_idx - 1]['middleware'] = $init_middleware_class;
+        if (empty(self::$group_idx))
+            self::$routes[self::$current_idx - 1]['middleware'] = $init_middleware_class;
+        else {
+            foreach (self::$group_idx as $idx) {
+                self::$routes[$idx]['middleware'] = $init_middleware_class;
+            }
+            self::$group_idx = [];
+        }
+    }
+
+    /**
+     * Chỉ định controller sử dụng riêng cho route được chọn. Nếu đang chỉ có một route được chọn thì controller sẽ chỉ gắn cho riêng route đó. Nếu một nhóm route được chọn thì controller sẽ được gán cho tất cả các route có trong nhóm. Chú ý để gán được controller thì bắt buộc handler trong route được chọn không bao gồm controller khác, chỉ bao gồm method (Nếu có) và không phải closure.
+     * @param string|array $controller_class Tên lớp controller chỉ định cho route đang được chọn. 
+     */
+    public function controller(string $controller_class)
+    {
+        if (empty($controller_class)) {
+            throw new InvalidArgumentException("ROUTE INVALID CONTROLLER CLASS NAME: Tên lớp controller không được để trống!");
+        }
+        $add_controller = function ($idx, &$route) use ($controller_class) {
+
+            if (is_array($route['handler'])) {
+                if (count($route['handler']) > 1) {
+                    throw new ErrorException("ROUTE DUPLICATE CONTROLLER CLASS: Route index '" . $idx . "' đã tồn tại controller '" . $route['handler'][0] . "'. Vui lòng kiểm tra lại!");
+                }
+                array_unshift($route['handler'], $controller_class);
+            } else {
+                if (is_callable($route['handler'])) {
+                    throw new ErrorException("ROUTE CLOSURE FOUND: Không thể chỉ định controller cho route đã có sẵn handler là closure!");
+                }
+                $route['handler'] = array($controller_class, $route['handler']);
+            }
+        };
+        if (empty(self::$group_idx)) {
+            $add_controller(self::current_idx(), self::$routes[self::current_idx()]);
+        } else {
+            foreach (self::$group_idx as $idx) {
+                $add_controller($idx, self::$routes[$idx]);
+            }
+            self::$group_idx = [];
+        }
+        return new self();
     }
 
     // Handling method
@@ -227,7 +286,10 @@ class Route
     }
 
     // Helper method
-
+    private static function current_idx()
+    {
+        return self::$current_idx - 1;
+    }
     private static function map_uri(string $url, string $uri, $validated_params = [])
     {
         $exploded_uri = explode('/', $uri);
