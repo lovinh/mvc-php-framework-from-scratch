@@ -6,6 +6,7 @@ use app\core\db\DB;
 use app\core\http_context\Request;
 use app\core\http_context\Response;
 use app\core\Template;
+use app\core\view\View;
 
 use function app\core\helper\load_model;
 use function app\core\helper\load_view;
@@ -47,8 +48,6 @@ class BaseController
      */
     public function render_view($view_name, $data = [])
     {
-        $content_view = file_get_contents(view_path("$view_name.php"));
-        $template = new Template();
-        $template->run($content_view, $data);
+        return View::render($view_name, $data);
     }
 }

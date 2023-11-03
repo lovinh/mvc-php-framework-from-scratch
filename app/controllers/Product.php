@@ -13,7 +13,7 @@ class Product extends BaseController
         $this->data['content'] = "product/index";
         $this->data['title'] = "Sản phẩm";
         $this->data["author"] = "a3lita";
-        $this->render_view("layouts/layout_index", $this->data);
+        return $this->render_view("layouts/layout_index", $this->data);
         // $model = $this->get_model("ItemList");
     }
     function detail($id = 0)
@@ -22,6 +22,6 @@ class Product extends BaseController
         $this->data['sub_content']['item'] = $model->get_item_by_id($id);
         $this->data['title'] = "Chi tiết sản phẩm";
         $this->data['content'] = "product/detail";
-        $this->render_view("layouts/layout_index", $this->data);
+        return $this->render_view("layouts/layout_index", $this->data);
     }
 }

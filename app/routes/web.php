@@ -30,27 +30,27 @@ Route::get("/", [Home::class, 'index']);
 
 Route::get("/test", function () {
     echo (new Request())->url();
-    View::render("test");
+    return View::render("test");
 });
 
 Route::delete("/delete", function () {
-    echo "DELETED!";
+    return "DELETED!";
 });
 
 Route::any("/any", function () {
-    echo "ANY REQUEST METHOD ALLOW!";
+    return "ANY REQUEST METHOD ALLOW!";
 });
 
 Route::match(["get", "post"], "/match", function () {
-    echo "MATCH REQUEST METHOD ALLOW!";
+    return "MATCH REQUEST METHOD ALLOW!";
 });
 
 Route::group(function () {
     Route::get("/group/test1", function () {
-        echo "Group test 1 </br>";
+        return "Group test 1 </br>";
     });
     Route::get("/group/test2", function () {
-        echo "Group test 2 </br>";
+        return "Group test 2 </br>";
     });
 })->middleware([SecondMiddleware::class, ThirdMiddleware::class]);
 
@@ -61,17 +61,19 @@ Route::get("/mat-hang/{ma-mat-hang}", function ($id) {
 });
 
 Route::get("/test-params/{id}/{name}/{size}", function ($id, $name, $size) {
-    echo "Id: $id" . "</br>";
-    echo "Name: $name" . "</br>";
-    echo "Size: $size" . "</br>";
-    echo route_url('test-params', ["id" => 1, "name" => "tung", "size" => "s", "page" => 2]);
+    $content = "";
+    $content .= "Id: $id" . "</br>";
+    $content .= "Name: $name" . "</br>";
+    $content .= "Size: $size" . "</br>";
+    $content .= route_url('test-params', ["id" => 1, "name" => "tung", "size" => "s", "page" => 2]);
     $request = new Request();
     $data = $request->get_fields_data();
-    echo "Page: " . $data['page'];
+    $content .= "Page: " . $data['page'];
+    return $content;
 })->where("name", "[t]")->where_in("size", ['s', 'm', 'l'])->name('test-params');
 
 Route::get("/test-middleware", function () {
-    echo "Kiểm tra middleware thui mà <3";
+    return "Kiểm tra middleware thui mà <3";
 })->middleware([AuthMiddleware::class, TestMiddleware::class]);
 
 Route::get('/webtest', [Hometest::class, 'index'])->name('webtest.home');
@@ -98,5 +100,5 @@ Route::post("/dang-xuat", [Auth::class, "logout"]);
 
 Route::fallback(function () {
     http_response_code(404);
-    View::render("404");
+    return View::render("404");
 });

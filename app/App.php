@@ -5,6 +5,7 @@ namespace app;
 use app\core\Route;
 use app\core\db\DB;
 use app\core\http_context\Request;
+use app\core\http_context\Response;
 use app\core\middleware\AuthMiddleware;
 use app\core\middleware\BaseMiddleware;
 use app\core\middleware\ParamsMiddleware;
@@ -235,7 +236,25 @@ class App
         if (is_array($handler['handler'])) {
             $handler['handler'][0] = new $handler['handler'][0]();
         }
-        call_user_func_array($handler['handler'], $handler['params']);
+        // var_dump($handler['handler']());
+        // echo '<pre>';
+        // print_r(Route::$routes);
+        // echo '</pre>';
+        $response = call_user_func_array($handler['handler'], $handler['params']);
+        // var_dump($response);
+
+        try {
+            if (!($response instanceof Response)) {
+                if (is_array($response)) {
+                    $response = (new Response())->json($response);
+                } else {
+                    $response = (new Response())->set_content(strval($response));
+                }
+            }
+            $response->send();
+        } catch (Error $er) {
+            throw new Error("APP: Handle không trả về response thỏa mãn");
+        }
     }
 
 

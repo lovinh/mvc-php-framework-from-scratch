@@ -2,7 +2,10 @@
 
 namespace app\core\view;
 
+use app\core\http_context\Response;
 use app\core\Template;
+
+use function app\core\helper\response;
 use function app\core\helper\view_path;
 
 class View
@@ -17,6 +20,10 @@ class View
     {
         $content_view = file_get_contents(view_path("$view_name.php"));
         $template = new Template();
+        ob_start();
         $template->run($content_view, $data);
+        $content = ob_get_contents();
+        ob_end_clean();
+        return response()->set_content($content);
     }
 }

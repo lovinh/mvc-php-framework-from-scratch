@@ -2,6 +2,7 @@
 
 namespace app\core\helper;
 
+use app\core\http_context\Response;
 use InvalidArgumentException;
 
 define('BYTE_KILOBYTE', 1000001);
@@ -28,4 +29,9 @@ function redirect(string $url_location, int $code = 301)
 {
     http_response_code($code);
     header('Location: ' . $url_location);
+}
+
+function response()
+{
+    return new Response();
 }
