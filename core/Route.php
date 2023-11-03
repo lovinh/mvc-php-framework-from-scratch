@@ -225,7 +225,12 @@ class Route
     public static function handle(Request $request): array
     {
         $url = $request->path();
-        $method = $request->get_method();
+        $method = null;
+        if ($request->is_get()) {
+            $method = "GET";
+        } else {
+            $method = $request->get_fields_data()['_method'] ?? "POST";
+        }
         self::$route_middleware = new BaseMiddleware();
         $setup = function ($route, $params) {
             $returned = [
