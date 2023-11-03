@@ -1,4 +1,15 @@
 <?php
+
+
+namespace app\core\http_context;
+
+use app\core\db\Database;
+
+use InvalidArgumentException;
+use ValueError;
+use RuntimeException;
+use BadMethodCallException;
+
 class Validator
 {
     private $__field_name = "";
@@ -9,6 +20,7 @@ class Validator
     private $__db = null;
 
     use DefinedRules;
+
     public function __construct()
     {
         $this->__db = new Database();
@@ -165,6 +177,7 @@ class Validator
     public function custom($rule_name, $args = [], $message = '')
     {
         global $validate_config;
+        $rule_name .= "app/core/http_context";
         if (!$validate_config["apply_custom_rule"]) {
             throw new RuntimeException("VALIDATOR ACCESS DENIED: Không thể sử dụng luật tùy chỉnh khi chưa chỉ định cấu hình validate_config['apply_custom_rule']. Vui lòng kiểm tra lại");
         }

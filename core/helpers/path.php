@@ -1,5 +1,6 @@
 <?php
 
+namespace app\core\helper;
 /**
  * Trả về đường dẫn tuyệt đối của ứng dụng.
  * @param string $relative_path đường dẫn tương đối đến một file. Khi đó hàm trả về đường dẫn kèm theo phần đường dẫn tương đối.
@@ -74,4 +75,12 @@ function path_info($relative_path = '')
         $path = $_SERVER["PATH_INFO"];
     }
     return $path . (!empty($relative_path) ? ('/' . $relative_path) : false);
+}
+
+function files_path($relative_path = '')
+{
+    if (!empty($relative_path)) {
+        $relative_path = str_replace('\\', '/', $relative_path);
+    }
+    return _DIR_ROOT . '/public/files' . (!empty($relative_path) ? ('/' . $relative_path) : false);
 }

@@ -1,11 +1,20 @@
 <?php
-require_once _DIR_ROOT . "/app/models/Item.php";
+
+namespace app\core\model;
+
+use function app\core\helper\load_model;
+use function app\core\helper\model_path;
+
+// use app\core\model\Item;
+
 class ItemList extends BaseModel
 {
     private $items;
     function __construct()
     {
+        load_model("Item");
         $this->items = array(
+            new Item(0, "Item 0", 50),
             new Item(1, "Item 1", 100),
             new Item(2, "Item 2", 200),
             new Item(3, "Item 3", 250),

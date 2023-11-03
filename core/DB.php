@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\db;
+
 class DB
 {
     private $__db;

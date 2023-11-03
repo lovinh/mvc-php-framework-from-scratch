@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\db;
+
 trait QueryBuilder
 {
     private $_table;

@@ -1,5 +1,9 @@
 <?php
 
+namespace app\core\db;
+
+use mysqli;
+
 /**
  * Lớp thực hiện tạo kết nối với cơ sở dữ liệu. Được viết theo mẫu thiết kế Singleton
  */

@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\controller;
+
 class News extends BaseController
 {
     public function index()

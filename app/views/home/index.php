@@ -9,6 +9,7 @@
 
 <body>
     <h1>Trang chủ</h1>
+    <h2>{{"Xin chào các bạn"}}</h2>
 </body>
 
 </html>

@@ -1,5 +1,10 @@
 <?php
 
+namespace app\core\db;
+
+use RuntimeException;
+use mysqli_result;
+
 /**
  * Lớp hỗ trợ kết nối và truy vấn đến cơ sở dữ liệu
  */

@@ -1,4 +1,9 @@
 <?php
+
+namespace app\core;
+
+use ValueError;
+
 class Session
 {
     /**

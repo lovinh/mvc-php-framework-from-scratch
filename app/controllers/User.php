@@ -1,4 +1,8 @@
 <?php
+
+namespace app\core\controller;
+use app\core\Session;
+
 class User extends BaseController
 {
     public $data = [];

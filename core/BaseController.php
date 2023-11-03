@@ -1,5 +1,17 @@
 <?php
 
+namespace app\core\controller;
+
+use app\core\db\DB;
+use app\core\http_context\Request;
+use app\core\http_context\Response;
+use app\core\Template;
+use app\core\view\View;
+
+use function app\core\helper\load_model;
+use function app\core\helper\load_view;
+use function app\core\helper\view_path;
+
 /**
  * Lớp nền của các lớp controller.
  * @property Database $db Đối tượng database, cho phép thực hiện các tác vụ liên quan đến truy vấn từ CSDL.
@@ -16,6 +28,7 @@ class BaseController
     {
         $this->request = new Request();
         $this->response = new Response();
+        $this->db = (new DB())->get_db();
     }
     /**
      * Trả về đối tượng model cụ thể
@@ -27,19 +40,14 @@ class BaseController
         return load_model($model_name);
     }
     /**
-     * Xuất view tương ứng với tên và dữ liệu được truyền vào
+     * Xuất view tương ứng với tên và dữ liệu được truyền vào. Lưu ý: Nên sử dụng return `View::render()` để thay thế hàm này.
      * @param string $view_name Tên view cần xuất
      * @param array $data Dữ liệu truyền vào view
      * @return null
+     * @deprecated
      */
     public function render_view($view_name, $data = [])
     {
-        ob_start();
-        load_view($view_name, $data);
-        $content_view = ob_get_contents();
-        ob_end_clean();
-        // echo $content_view;
-        $template = new Template();
-        $template->run($content_view, $data);
+        return View::render($view_name, $data);
     }
 }

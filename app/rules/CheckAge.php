@@ -1,5 +1,8 @@
 <?php
-class CheckAge implements Rules
+
+namespace app\core\http_context;
+
+class CheckAge implements IRules
 {
     public function __construct()
     {

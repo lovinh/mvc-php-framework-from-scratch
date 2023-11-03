@@ -1,4 +1,7 @@
 <?php
+
+namespace app\core\service;
+
 class AppServiceProvider extends ServiceProvider
 {
     public function boot()

@@ -1,10 +1,13 @@
 <?php
+
+namespace app\core\model;
+
 class Item extends BaseModel
 {
     private $__id;
     private $__name;
     private $__price;
-    function __construct($id, $name, $price)
+    function __construct($id = 0, $name = "", $price = 0)
     {
         $this->__id = $id;
         $this->__name = $name;
