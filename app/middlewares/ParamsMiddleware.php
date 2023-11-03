@@ -15,8 +15,8 @@ class ParamsMiddleware implements IMiddleware
         // if (!empty($this->request->query_string)) {
         //     $this->response->redirect(Route::get_full_url());
         // }
-        echo "Handle Params Middleware. Path: " . $request->path() . " </br>";
-        
+        // echo "Handle Params Middleware. Url: " . $request->full_url() . " </br>";
+
         return $next($request);
     }
 }

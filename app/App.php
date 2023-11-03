@@ -33,12 +33,6 @@ class App
         // Khởi tạo liên kết đến bản thân đối tượng App
         self::$app = $this;
 
-        if (!empty($router["default_controller"])) {
-            $this->__controller = $router["default_controller"];
-        }
-        $this->__action = "index";
-        $this->__parameters = [];
-
         $this->__middleware = new BaseMiddleware();
         $this->__request = new Request();
 
@@ -47,30 +41,6 @@ class App
             // Khởi tạo trình xử lý
             ob_start();
             $this->init($this->parse_url());
-        } catch (Throwable $err) {
-            // Bắt lỗi
-            // ob_clean();
-            $err_code = $err->getCode();
-            if ($err_code != 404) {
-                $err_code = 500;
-            }
-            $err_data = [];
-            if ($app_config["debug_mode"]) {
-                $err_data = [
-                    "is_error" => true,
-                    "type" => get_class($err),
-                    "file" => $err->getFile(),
-                    "line" => $err->getLine(),
-                    "message" => $err->getMessage(),
-                    "trace" => $err->getTrace(),
-                    "traceAsString" => $err->getTraceAsString()
-                ];
-                $this->load_error("debug", $err_data);
-            } else {
-                $this->load_error($err_code, $err_data);
-            }
-
-            die();
         } catch (Exception $ex) {
             // Bắt lỗi
             ob_clean();
@@ -86,6 +56,30 @@ class App
                     "message" => $ex->getMessage(),
                     "trace" => $ex->getTrace(),
                     "traceAsString" => $ex->getTraceAsString()
+                ];
+                $this->load_error("debug", $err_data);
+            } else {
+                $this->load_error($err_code, $err_data);
+            }
+
+            die();
+        } catch (Throwable $err) {
+            // Bắt lỗis
+            // ob_clean();
+            $err_code = $err->getCode();
+            if ($err_code != 404) {
+                $err_code = 500;
+            }
+            $err_data = [];
+            if ($app_config["debug_mode"]) {
+                $err_data = [
+                    "is_error" => true,
+                    "type" => get_class($err),
+                    "file" => $err->getFile(),
+                    "line" => $err->getLine(),
+                    "message" => $err->getMessage(),
+                    "trace" => $err->getTrace(),
+                    "traceAsString" => $err->getTraceAsString()
                 ];
                 $this->load_error("debug", $err_data);
             } else {
@@ -121,6 +115,17 @@ class App
         }
 
         // Xử lý route
+
+        $routes_dir = scandir("app/routes");
+        if (!empty($routes_dir)) {
+            foreach ($routes_dir as $routes_file) {
+                if (
+                    $routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)
+                ) {
+                    require_once "app/routes/" . $routes_file;
+                }
+            }
+        }
 
         $request_method = $_POST["_method"] ?? $_SERVER["REQUEST_METHOD"];
 

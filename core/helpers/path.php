@@ -76,3 +76,11 @@ function path_info($relative_path = '')
     }
     return $path . (!empty($relative_path) ? ('/' . $relative_path) : false);
 }
+
+function files_path($relative_path = '')
+{
+    if (!empty($relative_path)) {
+        $relative_path = str_replace('\\', '/', $relative_path);
+    }
+    return _DIR_ROOT . '/public/files' . (!empty($relative_path) ? ('/' . $relative_path) : false);
+}

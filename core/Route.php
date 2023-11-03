@@ -72,7 +72,7 @@ class Route
         return self::set_route($uri, $handler, $params, "any");
     }
 
-    public static function match(array $method, string $uri, callable $handler)
+    public static function match(array $method, string $uri, $handler)
     {
         $params = self::parse_uri($uri);
         return self::set_route($uri, $handler, $params, $method);

@@ -1,5 +1,6 @@
 @php
 use function app\core\helper\assets;
+use function app\core\helper\url;
 @endphp
 
 <!DOCTYPE html>
@@ -19,7 +20,7 @@ use function app\core\helper\assets;
 <body class="text-center">
 
     <main class="form-signin w-100 m-auto">
-        <form action="login" method="post">
+        <form action="{{url('dang-nhap/dang-dang-nhap')}}" method="post">
             <img class="mb-4" src="{{ assets('icon.png') }}" alt="" width="72" height="72">
             <h1 class="h3 mb-3 fw-normal">Sign in</h1>
 

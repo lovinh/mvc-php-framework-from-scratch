@@ -2,6 +2,7 @@
 
 namespace app\core\http_context;
 
+use app\core\utils\FileUpload;
 use RuntimeException;
 use ValueError;
 use InvalidArgumentException;
@@ -554,13 +555,13 @@ trait DefinedRules
             return $this;
         }
         $compare_value = $this->get_current_field_data();
-        if (is_int($value) || is_float($value)) {
+        if (is_int($compare_value) || is_float($compare_value)) {
             $compare_value = floatval($compare_value);
             $value = floatval($value);
-        } else if (is_string($value)) {
+        } else if (is_string($compare_value)) {
             $compare_value = strlen($compare_value);
             $value = strlen($value);
-        } else if (is_array($value)) {
+        } else if (is_array($compare_value)) {
             $compare_value = count($compare_value);
             $value = count($value);
         }
@@ -663,7 +664,7 @@ trait DefinedRules
         return $this;
     }
     /**
-     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có kích thước bằng giá trị chỉ định. Đối với số là giá trị của số (Cần áp dụng thêm luật để xác định trường được chọn có kiểu nguyên). Với chuỗi sẽ là số ký tự. Đối với mảng, sẽ là số lượng phần tử của mảng. Chỉ áp dụng cho kiểu số nguyên, chuỗi và mảng. 
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có kích thước bằng giá trị chỉ định. Đối với số là giá trị của số (Cần áp dụng thêm luật để xác định trường được chọn có kiểu nguyên). Với chuỗi sẽ là số ký tự. Đối với mảng, sẽ là số lượng phần tử của mảng. Đối với file (Là file tải lên hợp lệ), sẽ là kích thước của file (đơn vị byte). Chỉ áp dụng cho kiểu số nguyên, chuỗi, mảng và file. 
      * @param mixed $value Giá trị chỉ định. Phải là giá trị kiểu nguyên
      * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
      */
@@ -682,6 +683,10 @@ trait DefinedRules
             $compare_value = strlen($compare_value);
         } else if (is_array($compare_value)) {
             $compare_value = count($compare_value);
+        } else if ($compare_value instanceof FileUpload) {
+            if ($compare_value->is_valid()) {
+                $compare_value = $compare_value->get_file_size();
+            }
         }
         if ($compare_value != $value) {
             $this->set_error($this->__field_name, __FUNCTION__, $message);
@@ -793,6 +798,204 @@ trait DefinedRules
         }
         $val = hash($engine, $this->get_current_field_data());
         $this->set_current_field_data($val);
+        return $this;
+    }
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn là một file được tải lên hợp lệ.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function file($message = '')
+    {
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        } else if (!$file->is_valid()) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
+        return $this;
+    }
+
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có giá trị là file tải lên hợp lệ có kiểu file thỏa mãn các kiểu được chỉ định. Kiểu có dạng `<tên-kiểu>/<tên-kiểu-phụ>`, trong đó nếu `<tên-kiểu-phụ> = *` thì cho phép tất cả các kiểu phụ thuộc kiểu đó
+     * @param array $type Danh sách các kiểu file sử dụng để chỉ định xác thực. Tham số không được để trống và phải là mảng.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function has_file_type(array $types, $message = '')
+    {
+        if (empty($types)) {
+            throw new InvalidArgumentException("VALIDATOR EMPTY TYPE FILE: Danh sách kiểu file sử dụng để lọc không được để trống");
+        }
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            return $this;
+        }
+        if (!$file->is_valid()) {
+            return $this;
+        }
+        $file_type = $file->get_file_type();
+        $file_sub_type = explode('/', $file_type)[1];
+        $file_type = explode('/', $file_type)[0];
+        $matched = false;
+        foreach ($types as $type) {
+            $type_array = explode('/', $type);
+            if (empty($type_array)) {
+                throw new InvalidArgumentException("VALIDATOR INVALID TYPE FILE: Kiểu '$type' không là kiểu hợp lệ!");
+            }
+            $type_main = $type_array[0];
+            $type_sub = $type_array[1];
+            if ($type_sub == '*') {
+                if ($type_main == $file_type) {
+                    $matched = true;
+                    break;
+                }
+                continue;
+            }
+            if ($file_type == $type_main && $file_sub_type == $type_sub) {
+                $matched = true;
+                break;
+            }
+        }
+
+        if (!$matched) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
+        return $this;
+    }
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có giá trị là file tải lên hợp lệ có file extension thuộc các file extensions được chỉ định.
+     * @param array $extensions Danh sách các extension file sử dụng để chỉ định xác thực. Tham số không được để trống và phải là mảng.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function has_file_extension(array $extensions, $message = '')
+    {
+        if (empty($extensions)) {
+            throw new InvalidArgumentException("VALIDATOR EMPTY TYPE FILE: Danh sách kiểu file sử dụng để lọc không được để trống");
+        }
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            return $this;
+        }
+        if (!$file->is_valid()) {
+            return $this;
+        }
+        $file_extension = pathinfo($file->get_file_name(), PATHINFO_EXTENSION);
+        $matched = false;
+        foreach ($extensions as $extension) {
+            if ($file_extension == $extension) {
+                $matched = true;
+                break;
+            }
+        }
+        if (!$matched) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
+        return $this;
+    }
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có giá trị là file ảnh tải lên hợp lệ (có đuôi mở rộng là png, jpeg, jpg, bmp, gif, svg hoặc webp).
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function image($message = '')
+    {
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        $extensions = ['png', 'jpg', 'jpeg', 'bmp', 'gif', 'svg', 'webp'];
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            return $this;
+        }
+        if (!$file->is_valid()) {
+            return $this;
+        }
+        $file_extension = pathinfo($file->get_file_name(), PATHINFO_EXTENSION);
+        $matched = false;
+        foreach ($extensions as $extension) {
+            if (strtoupper($file_extension) == strtoupper($extension)) {
+                $matched = true;
+                break;
+            }
+        }
+        if (!$matched) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
+        return $this;
+    }
+
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có giá trị là file tải lên hợp lệ và có kích thước không vượt quá giá trị được chỉ định.
+     * @param int $value Kích thước tối đa cho phép của file. Đơn vị là byte.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function max_byte(int $value, $message = '')
+    {
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            return $this;
+        }
+        if (!$file->is_valid()) {
+            return $this;
+        }
+
+        $size = $file->get_file_size();
+        if ($size > $value) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
+        return $this;
+    }
+
+    /**
+     * Phương thức xác thực yêu cầu trường dữ liệu được chọn có giá trị là file tải lên hợp lệ và có kích thước không thấp hơn giá trị được chỉ định.
+     * @param int $value Kích thước tối đa cho phép của file. Đơn vị là byte.
+     * @param string $message Thông báo nếu vi phạm trường xác thực này. Mặc định để trống. Nếu đã cài đặt thông báo tại phương thức `set_message()` thì thông báo đó sẽ bị ghi đè bởi thông báo mới.
+     */
+    public function min_byte(int $value, $message = '')
+    {
+        if (!isset($this->__fields_data[$this->__field_name])) {
+            return $this;
+        }
+        /**
+         * @var FileUpload
+         */
+        $file = $this->get_current_field_data();
+        if (!($file instanceof FileUpload)) {
+            return $this;
+        }
+        if (!$file->is_valid()) {
+            return $this;
+        }
+
+        $size = $file->get_file_size();
+        if ($size < $value) {
+            $this->set_error($this->__field_name, __FUNCTION__, $message);
+        }
         return $this;
     }
 

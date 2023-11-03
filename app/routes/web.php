@@ -2,13 +2,16 @@
 
 namespace app\core;
 
+use app\core\controller\FileUpload as ControllerFileUpload;
 use app\core\controller\Home;
 use app\core\controller\Hometest;
 use app\core\controller\Product;
+use app\core\controller\test\Auth;
 use app\core\controller\test\webtest\Product as WebtestProduct;
 use app\core\http_context\Request;
 use app\core\middleware\AuthMiddleware;
 use app\core\view\View;
+use FileUpload;
 use SecondMiddleware;
 use TestMiddleware;
 use ThirdMiddleware;
@@ -26,6 +29,7 @@ Route::group(function () {
 Route::get("/", [Home::class, 'index']);
 
 Route::get("/test", function () {
+    echo (new Request())->url();
     View::render("test");
 });
 
@@ -82,6 +86,15 @@ Route::get("/json-test/{id}/{name}", function (string $id, string $name) {
     ];
 });
 
+Route::group(function () {
+    Route::match(['get', 'post'], "/file-upload", "index")->name("file.index");
+    Route::post("/file-upload/uploading", "upload")->name('file.upload');
+})->controller(ControllerFileUpload::class);
+
+Route::match(['get', 'post'], "/dang-nhap", [Auth::class, "sign_in"]);
+Route::post("/dang-nhap/dang-dang-nhap", [Auth::class, "login"]);
+Route::match(['get', 'post'], "/xac-nhan-dang-nhap", [Auth::class, "index"]);
+Route::post("/dang-xuat", [Auth::class, "logout"]);
 
 Route::fallback(function () {
     http_response_code(404);

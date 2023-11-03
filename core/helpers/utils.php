@@ -2,6 +2,17 @@
 
 namespace app\core\helper;
 
+use InvalidArgumentException;
+
+define('BYTE_KILOBYTE', 1000001);
+define('BYTE_MEGABYTE', 1000002);
+define('BYTE_GIGABYTE', 1000003);
+define('BYTE_TERABYTE', 1000004);
+define('KILOBYTE_BYTE', 1000005);
+define('MEGABYTE_BYTE', 1000006);
+define('GIGABYTE_BYTE', 1000007);
+define('TERABYTE_BYTE', 1000008);
+
 if (!function_exists("to_slug")) {
     function to_slug($value)
     {

@@ -2,6 +2,7 @@
 
 namespace app\core\controller;
 
+use app\core\db\DB;
 use app\core\http_context\Request;
 use app\core\http_context\Response;
 use app\core\Template;
@@ -26,6 +27,7 @@ class BaseController
     {
         $this->request = new Request();
         $this->response = new Response();
+        $this->db = (new DB())->get_db();
     }
     /**
      * Trả về đối tượng model cụ thể

@@ -166,16 +166,6 @@ while (!empty($stack_load)) {
 }
 
 // Load Route
-$routes_dir = scandir("app/routes");
-if (!empty($routes_dir)) {
-    foreach ($routes_dir as $routes_file) {
-        if (
-            $routes_file != '.' && $routes_file != ".." && file_exists('app/routes/' . $routes_file)
-        ) {
-            require_once "app/routes/" . $routes_file;
-        }
-    }
-}
 
 // Load Services and custom class
 $service_dir = scandir(app_path("core"));
@@ -186,3 +176,7 @@ if (!empty($service_dir)) {
         }
     }
 }
+
+// Load FileUpload
+
+require_once "core/FileUpload.php";

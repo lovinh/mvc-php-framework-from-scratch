@@ -11,7 +11,7 @@ class Auth extends BaseController
     private $data = [];
     public function index()
     {
-        echo "Trang chủ";
+        echo 'Trang chủ <form action="dang-xuat" method=post> <button type="submit">Đăng xuất</button> </form>';
     }
     public function sign_up()
     {
@@ -111,7 +111,7 @@ class Auth extends BaseController
                 Session::flash("errors", $this->request->validate->get_first_error());
                 Session::flash("msg", "Đã có lỗi xảy ra!");
                 Session::flash("field_data", $this->request->get_fields_data());
-                $this->response->redirect("kiem-tra/dang-nhap");
+                $this->response->redirect("dang-nhap");
             } else {
                 $validated_data = $this->request->validate->get_fields_data();
                 $query = $this->db->table("users")
@@ -121,10 +121,15 @@ class Auth extends BaseController
                     Session::flash("errors", ["Có lỗi xảy ra trong quá trình đăng nhập"]);
                     Session::flash("msg", "Đã có lỗi xảy ra!");
                     Session::flash("field_data", $this->request->get_fields_data());
-                    $this->response->redirect("kiem-tra/dang-nhap");
+                    $this->response->redirect("dang-nhap");
                 }
-                $this->response->redirect("test/auth");
+                $this->response->redirect("xac-nhan-dang-nhap");
             }
         }
+    }
+
+    public function logout()
+    {
+        $this->response->redirect("dang-nhap");
     }
 }
